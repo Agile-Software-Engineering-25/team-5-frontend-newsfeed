@@ -136,3 +136,33 @@ body {
 .saveBtn { background: #111; color: #fff; }
 .saveBtn:disabled { opacity: 0.5; cursor: not-allowed; }
 .cancelBtn { background: #eee; color: #111; }
+
+.removeBtn {
+  background: #ff4d4d;
+  color: #fff;
+  border: none;
+  border-radius: 9999px;
+  padding: 0.55rem 1rem;
+  cursor: pointer;
+  font-weight: 600;
+  margin: 20px;
+
+}
+.removeBtn:hover {
+  background: #ff1a1a;
+}
+
+.editBtn {
+  background: #767676;
+  color: #fff;
+  border: none;
+  border-radius: 9999px;
+  padding: 0.55rem 1rem;
+  cursor: pointer;
+  font-weight: 600;
+  margin: 20px;
+}
+.editBtn:hover {
+  background: #4c4c4c;
+}
+
