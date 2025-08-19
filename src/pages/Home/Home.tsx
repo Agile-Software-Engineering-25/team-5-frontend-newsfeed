@@ -3,8 +3,7 @@ import LanguageSelectorComponent from '@components/LanguageSelectorComponent/Lan
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { Button } from '@mui/material';
-import BasicPostComponent from "../../components/BasicPostComponent/BasicPostComponent";
-
+import BasicPostComponent from '../../components/BasicPostComponent/BasicPostComponent';
 
 const Home = () => {
   const { t } = useTranslation();
