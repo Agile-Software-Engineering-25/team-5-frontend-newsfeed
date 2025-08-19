@@ -1,9 +1,97 @@
 import { Box, Typography } from '@mui/joy';
 import LanguageSelectorComponent from '@components/LanguageSelectorComponent/LanguageSelectorComponent';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import {data, useNavigate} from 'react-router';
 import { Button } from '@mui/material';
 import BasicPostComponent from '../../components/BasicPostComponent/BasicPostComponent';
+import EditableBasicPostComponent from "../../components/BasicEditComponent/BasicEditComponent.tsx";
+
+
+interface news_post_object {
+    post_id : number | null; // Post ID, kann null sein, wenn neu
+    title: string;
+    author: string;
+    date: string;
+    content: string;
+    editable: boolean;
+}
+
+// Das NewsPost js Objekt:
+
+let news_post: news_post_object = {
+    post_id: null,
+    title: "",
+    author: "",
+    date: "",
+    content: "",
+    editable: false,
+
+}
+
+
+const mock_news_posts: news_post_object[] = [
+    {
+        post_id: 1,
+        title: "Breaking News: Alle bekommen eine 1,0 für SAU?!?!",
+        author: "Sekretariat",
+        date: "13.08.2025",
+        content: `<div><pre>
+Liebe Studierende,<br /><br />
+wir haben großartige <b>Neuigkeiten</b> für Sie: Alle Teilnehmerinnen und Teilnehmer des ASE-Programmierprojekts erhalten die Bestnote 1,0! 🎉<br />
+Während des gesamten Projekts haben Sie gezeigt, dass Sie nicht nur programmieren können, sondern auch im Team zusammenarbeiten, Probleme kreativ lösen und sich gegenseitig unterstützen können.<br /><br />
+Beste Grüße<br />
+Ihr Sekretariat
+</pre></div>`,
+        editable: false,
+    },
+    {
+        post_id: 2,
+        title: "Serverwartung am Wochenende",
+        author: "IT-Support",
+        date: "15.08.2025",
+        content: `<div><pre>
+Liebe Nutzerinnen und Nutzer,<br /><br />
+bitte beachten Sie, dass unsere Server am Samstag, den 16.08.2025, von 22:00 bis 02:00 Uhr wegen Wartungsarbeiten nicht erreichbar sein werden.<br />
+Wir bitten um Ihr Verständnis.<br /><br />
+Mit freundlichen Grüßen<br />
+Ihr IT-Support
+</pre></div>`,
+        editable: false,
+    },
+    {
+        post_id: 3,
+        title: "Neue Mensa-Speisekarte online",
+        author: "Studentenwerk",
+        date: "12.08.2025",
+        content: `<div><pre>
+Liebe Studierende,<br /><br />
+ab sofort ist die neue Speisekarte der Mensa für das kommende Semester online verfügbar.<br />
+Es erwarten Sie viele neue Gerichte, darunter auch mehr vegetarische und vegane Optionen.<br /><br />
+Guten Appetit! 🍽️<br /><br />
+Ihr Studentenwerk
+</pre></div>`,
+        editable: false,
+    },
+    {
+        post_id: 4,
+        title: "Gastvortrag: KI in der Medizin",
+        author: "Fakultät Informatik",
+        date: "11.08.2025",
+        content: `<div><pre>
+Sehr geehrte Damen und Herren,<br /><br />
+wir laden Sie herzlich zum Gastvortrag von Prof. Dr. Müller zum Thema 
+"Künstliche Intelligenz in der Medizin" ein.<br />
+📅 Datum: 20.08.2025<br />
+⏰ Uhrzeit: 18:00 Uhr<br />
+📍 Ort: Hörsaal 3<br /><br />
+Wir freuen uns auf Ihr Kommen.<br /><br />
+Ihre Fakultät Informatik
+</pre></div>`,
+        editable: false,
+    }
+];
+
+
 
 const Home = () => {
   const { t } = useTranslation();
@@ -11,45 +99,34 @@ const Home = () => {
 
   return (
     <div>
-      <BasicPostComponent
-        title="Breaking News: Alle bekommen eine 1,0 für SAU?!?!"
-        author="Sekretariat"
-        date="13.08.2025"
-        content={`Liebe Studierende,
 
-wir haben großartige Neuigkeiten für Sie: Alle Teilnehmerinnen und Teilnehmer des ASE-Programmierprojekts erhalten die Bestnote 1,0! 🎉
-Während des gesamten Projekts haben Sie gezeigt, dass Sie nicht nur programmieren können, sondern auch im Team zusammenarbeitet, Probleme kreativ lösen und sich gegenseitig unterstützen können. Viele von Ihnen sind weit über die eigentlichen Anforderungen hinausgegangen, um innovative Ideen umzusetzen und qualitativ hochwertige Ergebnisse zu liefern.
 
-Wir möchten Ihnen herzlich für den Einsatz danken. Diese Bestnote haben Sie sich redlich verdient – jede einzelne Zeile Code, jede Diskussion im Team und jeder Lösungsansatz haben dazu beigetragen, dass dieses Projekt zu einem vollen Erfolg wurde.
+        {mock_news_posts.map((post) => (
+            <EditableBasicPostComponent
+                title={post.title}
+                author={post.author}
+                date={post.date}
+                content={post.content}
+                editable={post.editable}
+                onChange={({ title, content }) => {
+                    // z.B. lokales State-Lifting, Auto-Save etc.
+                    // console.log("CHANGE", title, content);
+                }}
+                onSave={({ title, content }) => {
+                    //Änderungen direkt einfügen
 
-Beste Grüße
-Ihr Sekretariat`}
-      />
-      <BasicPostComponent
-        title="Khalid gönnt ne Runde Eis nach seinem Urlaub?!"
-        author="Khalid Lakniti"
-        date="08.08.2025"
-        content={`Liebe Kolleg*innen,
-          
-          ja es ist wahr. Wie versprochen gibts am ersten Tag nach meinem Urlaub direkt für jede*n von euch vier Kugeln auf meinen Nacken. 
-          
-          Viele Grüße
-          Khalid`}
-      />
-      <BasicPostComponent
-        title="Die Mensa bekommt einen McDonalds!"
-        author="Sekretariat"
-        date="01.08.2025"
-        content={`Liebe Studierende,
+                }}
+                onCancel={() => {
+                    // ggf. Edit-Mode verlassen oder Werte zurücksetzen
+                }}
+            />
+        ))}
 
-ab dem kommenden Semester erwartet Sie in der Mensa eine ganz besondere Neuerung: Ein McDonald’s zieht ein! 🍔🍟
-Damit haben Sie künftig nicht nur die gewohnte Mensa-Auswahl, sondern auch Burger, Pommes und Co. direkt auf dem Campus.
 
-Wir sind gespannt, wie Ihnen das neue Angebot gefällt – guten Appetit schon mal vorab! 😄
 
-Beste Grüße
-Euer Sekretariat`}
-      />
+
+
+
     </div>
   );
 };
