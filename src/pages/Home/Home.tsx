@@ -19,7 +19,7 @@ let role: "admin" | "user" | "prof" = "admin";
 const emptyPost: NewsPost = {
     post_id: 0,
     title: "",
-    author: "",
+  author: '',
     date: "",
     content: "",
     maintain: false,
@@ -35,7 +35,7 @@ const mock_news_posts: NewsPost[] = [
         title: "Breaking News: Alle bekommen eine 1,0 für SAU?!?!",
         author: "Sekretariat",
         date: "2025-08-13",
-        content: `<p>Liebe Studierende,</p>
+    content: `<p>Liebe Studierende,</p>
               <p>wir haben großartige Neuigkeiten für Sie: Alle Teilnehmerinnen und Teilnehmer des ASE-Programmierprojekts erhalten die Bestnote 1,0! 🎉</p>
               <p>Während des gesamten Projekts haben Sie gezeigt, dass Sie nicht nur programmieren können, sondern auch im Team zusammenarbeiten, Probleme kreativ lösen und sich gegenseitig unterstützen können.</p>
               <p>Beste Grüße</p>
@@ -137,6 +137,8 @@ const Home = () => {
             content,
             maintain: role === "admin",
         };
+
+        console.log("Neuer Post:", newPost);
 
         setLocalPostsList((prev) =>
             [...prev, newPost].sort(
