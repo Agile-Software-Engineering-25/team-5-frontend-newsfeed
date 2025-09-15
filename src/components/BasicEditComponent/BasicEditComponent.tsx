@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useRef, useEffect } from 'react';
 import styles from './BasicEditComponent.module.css';
 
 // Falls ihr Next.js nutzt, bitte dynamisch importieren (siehe Hinweis unten).
@@ -49,6 +49,20 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
   const [localDepartment, setLocalDepartment] = useState<string[]>(department ? department.split(',') : ['Alle']);
   const departmentOptions = ['Alle', 'F1', 'F2', 'F3', 'F4'];
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!dropdownOpen) return;
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dropdownOpen]);
 
   // Quill-Toolbar über dem Content 
   const quillModules = useMemo(
@@ -189,7 +203,7 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
               <span className={styles.author}>Von {author}</span>
               <div className={styles.dropdownWrap}>
                 <label>Fachbereich:&nbsp;</label>
-                <div className={styles.customDropdown}>
+                <div className={styles.customDropdown} ref={dropdownRef}>
                   <button
                     type="button"
                     className={styles.dropdownBtn}
