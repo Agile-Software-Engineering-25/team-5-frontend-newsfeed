@@ -46,7 +46,9 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
   const [localTitle, setLocalTitle] = useState(title);
   const [localContent, setLocalContent] = useState(content);
   const [localEdit, setLocalEdit] = useState<boolean>(addPost);
-  const [localDepartment, setLocalDepartment] = useState<string>(department);
+  const [localDepartment, setLocalDepartment] = useState<string[]>(department ? department.split(',') : ['Alle']);
+  const departmentOptions = ['Alle', 'F1', 'F2', 'F3', 'F4'];
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   // Quill-Toolbar über dem Content 
   const quillModules = useMemo(
@@ -103,19 +105,25 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
     [localTitle, onChange, key]
   );
 
-  const handleDepartmentChange = useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>) => {
-      setLocalDepartment(e.target.value);
-    },
-    []
-  );
+  const handleCheckboxChange = (option: string) => {
+    if (option === 'Alle') {
+      setLocalDepartment(['Alle']);
+    } else {
+      let next = localDepartment.includes(option)
+        ? localDepartment.filter((d) => d !== option)
+        : [...localDepartment.filter((d) => d !== 'Alle'), option];
+      if (next.length === 0) next = ['Alle'];
+      setLocalDepartment(next);
+    }
+  };
 
   const handleSave = useCallback(() => {
-    onSave?.({ post_id: key, title: localTitle.trim(), content: localContent, department: localDepartment });
+    const departmentString = localDepartment.join(',');
+    onSave?.({ post_id: key, title: localTitle.trim(), content: localContent, department: departmentString });
     if (addPost) {
       setLocalTitle('');
       setLocalContent('');
-      setLocalDepartment('Alle');
+      setLocalDepartment(['Alle']);
     } else {
       setLocalEdit(false);
     }
@@ -151,19 +159,30 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
             <div className={styles.meta}>
               <span className={styles.author}>Von {author}</span>
               <div className={styles.dropdownWrap}>
-                <label htmlFor="department-select">Fachbereich:&nbsp;</label>
-                <select
-                  id="department-select"
-                  value={localDepartment}
-                  onChange={handleDepartmentChange}
-                  className={styles.departmentSelect}
-                >
-                  <option value="Alle">Alle</option>
-                  <option value="F1">F1</option>
-                  <option value="F2">F2</option>
-                  <option value="F3">F3</option>
-                  <option value="F4">F4</option>
-                </select>
+                <label>Fachbereich:&nbsp;</label>
+                <div className={styles.customDropdown}>
+                  <button
+                    type="button"
+                    className={styles.dropdownBtn}
+                    onClick={() => setDropdownOpen((open) => !open)}
+                  >
+                    {localDepartment.length > 0 ? localDepartment.join(', ') : 'Alle auswählen'}
+                  </button>
+                  {dropdownOpen && (
+                    <div className={styles.dropdownList}>
+                      {departmentOptions.map((option) => (
+                        <label key={option} className={styles.dropdownItem}>
+                          <input
+                            type="checkbox"
+                            checked={localDepartment.includes(option)}
+                            onChange={() => handleCheckboxChange(option)}
+                          />
+                          {option}
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
               <span className={styles.date}>{date}</span>
             </div>
@@ -174,7 +193,7 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
             <div className={styles.meta}>
               <span className={styles.author}>Von {author}</span>
               <span className={styles.date}>{date}</span>
-              <span className={styles.department}>Fachbereich: {localDepartment}</span>
+              <span className={styles.department}>Fachbereich: {localDepartment.join(', ')}</span>
             </div>
           </>
         )}
