@@ -14,14 +14,16 @@ interface BasicPostComponentProps {
   author: string;
   date: string;
   content: string;
+  department?: string;
   addPost?: boolean;
   maintain?: boolean | undefined;
   onChange?: (data: {
     post_id: number;
     title: string;
     content: string;
+    department?: string;
   }) => void;
-  onSave?: (data: { post_id: number; title: string; content: string }) => void;
+  onSave?: (data: { post_id: number; title: string; content: string; department?: string }) => void;
   onCancel?: () => void;
   onRemove?: (data: { post_id: number }) => void;
 }
@@ -32,6 +34,7 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
   author,
   date,
   content,
+  department = 'Alle',
   addPost = false,
   maintain,
   onChange,
@@ -39,21 +42,19 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
   onCancel,
   onRemove,
 }) => {
-  // Lokaler Edit-Status (enthaelt immer die aktuell sichtbaren Werte)
+  // Lokaler Status der Edits
   const [localTitle, setLocalTitle] = useState(title);
   const [localContent, setLocalContent] = useState(content);
   const [localEdit, setLocalEdit] = useState<boolean>(addPost);
+  const [localDepartment, setLocalDepartment] = useState<string>(department);
 
-  // Wenn addPost true ist, dann immer im Edit-Modus
-  // und Content und Title leer
-
-  // Quill-Toolbar über dem Content wie bei einer E-Mail
+  // Quill-Toolbar über dem Content 
   const quillModules = useMemo(
     () => ({
       toolbar: [
         [{ header: [1, 2, 3, 4, 5, 6, false] }],
         ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-        [{ size: [] }, { font: [] }],
+        [{ size: [] }],
         [{ align: ['', 'center', 'right', 'justify'] }],
         [{ list: 'ordered' }, { list: 'bullet' }],
         ['link', 'image'],
@@ -102,15 +103,23 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
     [localTitle, onChange, key]
   );
 
+  const handleDepartmentChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setLocalDepartment(e.target.value);
+    },
+    []
+  );
+
   const handleSave = useCallback(() => {
+    onSave?.({ post_id: key, title: localTitle.trim(), content: localContent, department: localDepartment });
     if (addPost) {
       setLocalTitle('');
       setLocalContent('');
+      setLocalDepartment('Alle');
     } else {
       setLocalEdit(false);
     }
-    onSave?.({ post_id: key, title: localTitle.trim(), content: localContent });
-  }, [localTitle, localContent, onSave, key]);
+  }, [localTitle, localContent, localDepartment, onSave, key, addPost]);
 
   const handleCancel = () => {
     setLocalEdit(false);
@@ -131,21 +140,44 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
     <article className={styles.card}>
       <header className={styles.header}>
         {localEdit ? (
-          <input
-            className={styles.titleInput}
-            type="text"
-            placeholder="Titel eingeben…"
-            value={localTitle}
-            onChange={handleTitleChange}
-          />
+          <>
+            <input
+              className={styles.titleInput}
+              type="text"
+              placeholder="Titel eingeben…"
+              value={localTitle}
+              onChange={handleTitleChange}
+            />
+            <div className={styles.meta}>
+              <span className={styles.author}>Von {author}</span>
+              <div className={styles.dropdownWrap}>
+                <label htmlFor="department-select">Fachbereich:&nbsp;</label>
+                <select
+                  id="department-select"
+                  value={localDepartment}
+                  onChange={handleDepartmentChange}
+                  className={styles.departmentSelect}
+                >
+                  <option value="Alle">Alle</option>
+                  <option value="F1">F1</option>
+                  <option value="F2">F2</option>
+                  <option value="F3">F3</option>
+                  <option value="F4">F4</option>
+                </select>
+              </div>
+              <span className={styles.date}>{date}</span>
+            </div>
+          </>
         ) : (
-          <h2 className={styles.title}>{title}</h2>
+          <>
+            <h2 className={styles.title}>{title}</h2>
+            <div className={styles.meta}>
+              <span className={styles.author}>Von {author}</span>
+              <span className={styles.date}>{date}</span>
+              <span className={styles.department}>Fachbereich: {localDepartment}</span>
+            </div>
+          </>
         )}
-
-        <div className={styles.meta}>
-          <span className={styles.author}>Von {author}</span>
-          <span className={styles.date}>{date}</span>
-        </div>
       </header>
 
       {localEdit ? (
@@ -159,7 +191,6 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
             value={localContent}
             onChange={handleContentChange}
           />
-
           {(onSave || onCancel) && (
             <div className={styles.actions}>
               {onSave && (
@@ -176,7 +207,6 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
                   Speichern
                 </button>
               )}
-
               <button className={styles.cancelBtn} onClick={handleCancel}>
                 Abbrechen
               </button>
@@ -185,7 +215,7 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
         </div>
       ) : (
         <>
-          // Anzeige: Quill-HTML sicher rendern
+          {/* Anzeige: Quill-HTML sicher rendern */}
           <div
             className={styles.body}
             dangerouslySetInnerHTML={{ __html: safeHtml }}
