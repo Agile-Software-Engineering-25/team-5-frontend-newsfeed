@@ -105,6 +105,7 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
   );
 
   const handleCheckboxChange = (option: string) => {
+    const fachbereiche = ['F1', 'F2', 'F3', 'F4'];
     if (option === 'Alle') {
       setLocalDepartment(['Alle']);
     } else {
@@ -112,11 +113,12 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
         ? localDepartment.filter((d) => d !== option)
         : [...localDepartment.filter((d) => d !== 'Alle'), option];
       // Wenn alle Fachbereiche ausgewählt sind, setze auf 'Alle'
-      const fachbereiche = ['F1', 'F2', 'F3', 'F4'];
       if (fachbereiche.every(fb => next.includes(fb))) {
         next = ['Alle'];
       }
       if (next.length === 0) next = ['Alle'];
+      // Sortiere die Fachbereiche nach der festen Reihenfolge
+      next = next[0] === 'Alle' ? ['Alle'] : fachbereiche.filter(fb => next.includes(fb));
       setLocalDepartment(next);
     }
   };
