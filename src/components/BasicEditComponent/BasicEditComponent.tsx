@@ -60,6 +60,7 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
         [{ list: 'ordered' }, { list: 'bullet' }],
         ['link', 'image'],
         [{ color: [] }, { background: [] }],
+,
       ],
     }),
     []
@@ -110,6 +111,11 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
       let next = localDepartment.includes(option)
         ? localDepartment.filter((d) => d !== option)
         : [...localDepartment.filter((d) => d !== 'Alle'), option];
+      // Wenn alle Fachbereiche ausgewählt sind, setze auf 'Alle'
+      const fachbereiche = ['F1', 'F2', 'F3', 'F4'];
+      if (fachbereiche.every(fb => next.includes(fb))) {
+        next = ['Alle'];
+      }
       if (next.length === 0) next = ['Alle'];
       setLocalDepartment(next);
     }
