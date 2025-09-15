@@ -148,6 +148,29 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
     return DOMPurify.sanitize(localContent || '');
   }, [localContent]);
 
+  // Hilfsfunktion für Datum mit führenden Nullen
+  function formatDate(dateString: string): string {
+    // Prüfe, ob das Datum im Format D.M.YYYY oder DD.MM.YYYY ist
+    const regex = /^(\d{1,2})[.](\d{1,2})[.](\d{4})$/;
+    const match = dateString.match(regex);
+    if (match) {
+      const day = match[1].padStart(2, '0');
+      const month = match[2].padStart(2, '0');
+      const year = match[3];
+      return `${day}.${month}.${year}`;
+    }
+    // Fallback: Standard Date-Objekt
+    const dateObj = new Date(dateString);
+    if (!isNaN(dateObj.getTime())) {
+      const day = String(dateObj.getDate()).padStart(2, '0');
+      const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const year = dateObj.getFullYear();
+      return `${day}.${month}.${year}`;
+    }
+    // Falls ungültig, gib das Original zurück
+    return dateString;
+  }
+
   return (
     <article className={styles.card}>
       <header className={styles.header}>
@@ -188,7 +211,7 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
                   )}
                 </div>
               </div>
-              <span className={styles.date}>{date}</span>
+              <span className={styles.date}>{formatDate(date)}</span>
             </div>
           </>
         ) : (
@@ -196,7 +219,7 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
             <h2 className={styles.title}>{title}</h2>
             <div className={styles.meta}>
               <span className={styles.author}>Von {author}</span>
-              <span className={styles.date}>{date}</span>
+              <span className={styles.date}>{formatDate(date)}</span>
               <span className={styles.department}>Fachbereich: {localDepartment.join(', ')}</span>
             </div>
           </>
