@@ -282,7 +282,7 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
             className={styles.body}
             dangerouslySetInnerHTML={{ __html: safeHtml }}
           />
-          <div>
+          <div className={styles.actions}>
             {maintain}
             {maintain && (
               <button

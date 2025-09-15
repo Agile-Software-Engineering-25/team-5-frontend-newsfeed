@@ -9,7 +9,7 @@ body {
 
 .card {
   width: 1000px;
-  min-height: 320px;
+  min-height: 340px;
   margin: 32px auto;
   background: #ffffff;
   border-radius: 24px;
@@ -126,6 +126,8 @@ body {
   justify-content: flex-end;
   margin-top: 20px;
   margin-bottom: 16px;
+  padding-right: 24px;
+  padding-bottom: 16px;
 }
 
 .saveBtn, .cancelBtn {
@@ -148,7 +150,6 @@ body {
   padding: 10px 19px;
   cursor: pointer;
   font-weight: 600;
-  margin: 20px;
 }
 .removeBtn:hover {
   background: #ff1a1a;
@@ -162,7 +163,6 @@ body {
   padding: 10px 19px;
   cursor: pointer;
   font-weight: 600;
-  margin: 20px;
 }
 .editBtn:hover {
   background: #4c4c4c;
