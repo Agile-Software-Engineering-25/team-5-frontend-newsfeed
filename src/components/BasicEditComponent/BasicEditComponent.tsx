@@ -54,14 +54,12 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
   const quillModules = useMemo(
     () => ({
       toolbar: [
-        [{ header: [1, 2, 3, 4, 5, 6, false] }],
-        ['bold', 'italic', 'underline', 'strike', 'blockquote'],
         [{ size: [] }],
+        ['bold', 'italic', 'underline', 'strike', 'blockquote'],
         [{ align: ['', 'center', 'right', 'justify'] }],
         [{ list: 'ordered' }, { list: 'bullet' }],
         ['link', 'image'],
         [{ color: [] }, { background: [] }],
-        ['clean'],
       ],
     }),
     []
