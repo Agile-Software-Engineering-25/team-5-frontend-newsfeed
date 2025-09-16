@@ -1,5 +1,5 @@
 // src/services/apiClient.ts
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080';
 
 type RequestOpts = {
   query?: Record<string, string | number | boolean | undefined>;
@@ -35,6 +35,7 @@ async function request<T>(
     ...(opts.headers ?? {}),
   };
 
+  console.log("Hello"+method, url.toString());
   const res = await fetch(url, {
     method,
     headers,

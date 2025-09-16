@@ -1,70 +1,106 @@
-import React, { useMemo, useState, useCallback, useRef, useEffect } from 'react';
-import styles from './BasicEditComponent.module.css';
+import React, {
+  useMemo,
+  useState,
+  useCallback,
+  useRef,
+  useEffect,
+} from 'react';
+import styles from './Newspost.module.css';
 
-// Falls ihr Next.js nutzt, bitte dynamisch importieren (siehe Hinweis unten).
+// Falls ihr Next.js nutzt, ReactQuill dynamisch importieren.
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
-// Optional, aber sehr empfohlen für sicheres HTML-Rendering:
 import DOMPurify from 'dompurify';
+import type {
+  NewsPostCreate,
+  NewsPostRead,
+  NewsPostUpdate,
+  Content as NewsContent,
+} from '@/types/newsfeed';
 
-interface BasicPostComponentProps {
-  key: number;
-  title: string;
-  author: string;
-  date: string;
-  content: string;
+type EditablePost = NewsPostRead | (Partial<NewsPostCreate> & { id: string });
+
+type SavePayload = {
+  post: NewsPostCreate | NewsPostUpdate;
+};
+
+type ChangePayload = {
+  post: Partial<NewsPostCreate | NewsPostUpdate>;
+};
+
+type RemovePayload = { id: string };
+
+interface NewsPostCardProps {
+  /** Der Post (Read oder Create/Update-Entwurf) */
+  post: EditablePost;
+
+  /** Wenn true, startet im Edit-Modus (z.B. "Neuen Post anlegen") */
+  startEditing?: boolean;
+
+  /** Optionales UI-Tagging außerhalb des API-Schemas */
   department?: string;
-  addPost?: boolean;
-  maintain?: boolean | undefined;
-  onChange?: (data: {
-    post_id: number;
-    title: string;
-    content: string;
-    department?: string;
-  }) => void;
-  onSave?: (data: { post_id: number; title: string; content: string; department?: string }) => void;
+
+  /** Schreibrechte/Buttons anzeigen */
+  maintain?: boolean;
+
+  /** Callbacks */
+  onChange?: (data: ChangePayload) => void;
+  onSave?: (data: SavePayload) => void;
   onCancel?: () => void;
-  onRemove?: (data: { post_id: number }) => void;
+  onRemove?: (data: RemovePayload) => void;
 }
 
-const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
-  key,
-  title,
-  author,
-  date,
-  content,
+const departmentOptions = ['Alle', 'F1', 'F2', 'F3', 'F4'];
+
+const NewsPostCard: React.FC<NewsPostCardProps> = ({
+  post,
+  startEditing = false,
   department = 'Alle',
-  addPost = false,
   maintain,
   onChange,
   onSave,
   onCancel,
   onRemove,
 }) => {
-  // Lokaler Status der Edits
-  const [localTitle, setLocalTitle] = useState(title);
-  const [localContent, setLocalContent] = useState(content);
-  const [localEdit, setLocalEdit] = useState<boolean>(addPost);
-  const [localDepartment, setLocalDepartment] = useState<string[]>(department ? department.split(',') : ['Alle']);
-  const departmentOptions = ['Alle', 'F1', 'F2', 'F3', 'F4'];
+  // Initialwerte aus dem Post ableiten
+  const initialTitle = post.title ?? '';
+  const initialContent: NewsContent = post.content ?? {
+    format: 'html',
+    body: '',
+  };
+  const authorName = post.author?.name ?? 'Unbekannt';
+  const dateIso =
+    post.publish_date ?? post.creation_date ?? post.last_modified ?? '';
+
+  // Lokaler Zustand
+  const [localTitle, setLocalTitle] = useState<string>(initialTitle);
+  const [localContent, setLocalContent] = useState<NewsContent>(initialContent);
+  const [localEdit, setLocalEdit] = useState<boolean>(startEditing);
+  const [localDepartment, setLocalDepartment] = useState<string[]>(
+    department ? department.split(',') : ['Alle']
+  );
+
+  // Dropdown
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     if (!dropdownOpen) return;
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
         setDropdownOpen(false);
       }
     }
+
     document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [dropdownOpen]);
 
-  // Quill-Toolbar über dem Content 
+  // Quill
   const quillModules = useMemo(
     () => ({
       toolbar: [
@@ -74,7 +110,6 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
         [{ list: 'ordered' }, { list: 'bullet' }],
         ['link', 'image'],
         [{ color: [] }, { background: [] }],
-,
       ],
     }),
     []
@@ -101,21 +136,27 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
     []
   );
 
+  // Handlers
   const handleTitleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const next = e.target.value;
       setLocalTitle(next);
-      onChange?.({ post_id: key, title: next, content: localContent });
+      onChange?.({
+        post: { title: next },
+      });
     },
-    [localContent, onChange, key]
+    [onChange]
   );
 
   const handleContentChange = useCallback(
     (html: string) => {
-      setLocalContent(html);
-      onChange?.({ post_id: key, title: localTitle, content: html });
+      const next: NewsContent = { format: 'html', body: html };
+      setLocalContent(next);
+      onChange?.({
+        post: { content: next },
+      });
     },
-    [localTitle, onChange, key]
+    [onChange]
   );
 
   const handleCheckboxChange = (option: string) => {
@@ -126,47 +167,63 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
       let next = localDepartment.includes(option)
         ? localDepartment.filter((d) => d !== option)
         : [...localDepartment.filter((d) => d !== 'Alle'), option];
-      // Wenn alle Fachbereiche ausgewählt sind, setze auf 'Alle'
-      if (fachbereiche.every(fb => next.includes(fb))) {
-        next = ['Alle'];
-      }
+      if (fachbereiche.every((fb) => next.includes(fb))) next = ['Alle'];
       if (next.length === 0) next = ['Alle'];
-      // Sortiere die Fachbereiche nach der festen Reihenfolge
-      next = next[0] === 'Alle' ? ['Alle'] : fachbereiche.filter(fb => next.includes(fb));
+      next =
+        next[0] === 'Alle'
+          ? ['Alle']
+          : fachbereiche.filter((fb) => next.includes(fb));
       setLocalDepartment(next);
     }
   };
 
   const handleSave = useCallback(() => {
-    const departmentString = localDepartment.join(',');
-    onSave?.({ post_id: key, title: localTitle.trim(), content: localContent, department: departmentString });
-    if (addPost) {
-      setLocalTitle('');
-      setLocalContent('');
-      setLocalDepartment(['Alle']);
-    } else {
-      setLocalEdit(false);
-    }
-  }, [localTitle, localContent, localDepartment, onSave, key, addPost]);
+    // NewsPostCreate/Update Payload aufbauen
+    const payload: NewsPostCreate | NewsPostUpdate = {
+      // Pflichtfelder laut Schema
+      id: post.id,
+      title: localTitle.trim(),
+      summary: post.summary ?? '',
+      status: post.status ?? 'draft',
+      content: { format: 'html', body: localContent.body },
+      author: post.author ?? { user_id: 'unknown', name: authorName },
+      creation_date: post.creation_date ?? new Date().toISOString(),
 
-  const handleCancel = () => {
+      // Optionale Felder, sofern vorhanden
+      featured_image: post.featured_image,
+      publish_date: post.publish_date ?? null,
+      last_modified: new Date().toISOString(),
+      expiration: undefined,
+      permissions: (post as NewsPostCreate).permissions,
+      settings: post.settings,
+    };
+
+    onSave?.({ post: payload });
+
+    // Nach Speichern in den View-Modus wechseln
     setLocalEdit(false);
-    setLocalTitle(title); // Ursprünglichen Titel wiederherstellen
-    setLocalContent(content); // Ursprünglichen Inhalt wiederherstellen
-  };
+  }, [post, localTitle, localContent.body, authorName, onSave]);
+
+  const handleCancel = useCallback(() => {
+    setLocalEdit(false);
+    setLocalTitle(initialTitle);
+    setLocalContent(initialContent);
+    onCancel?.();
+  }, [initialContent, initialTitle, onCancel]);
 
   const handleRemove = useCallback(() => {
-    onRemove?.({ post_id: key });
-  }, [onRemove, key]);
+    onRemove?.({ id: post.id });
+  }, [onRemove, post.id]);
 
   const safeHtml = useMemo(() => {
-    // nur im View-Modus relevant
-    return DOMPurify.sanitize(localContent || '');
+    // nur im View-Modus relevant (oder wenn wir HTML anzeigen)
+    const html = localContent.format === 'html' ? localContent.body : '';
+    return DOMPurify.sanitize(html || '');
   }, [localContent]);
 
-  // Hilfsfunktion für Datum mit führenden Nullen
+  // Datumsformatierung (DD.MM.YYYY)
   function formatDate(dateString: string): string {
-    // Prüfe, ob das Datum im Format D.M.YYYY oder DD.MM.YYYY ist
+    if (!dateString) return '';
     const regex = /^(\d{1,2})[.](\d{1,2})[.](\d{4})$/;
     const match = dateString.match(regex);
     if (match) {
@@ -175,7 +232,6 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
       const year = match[3];
       return `${day}.${month}.${year}`;
     }
-    // Fallback: Standard Date-Objekt
     const dateObj = new Date(dateString);
     if (!isNaN(dateObj.getTime())) {
       const day = String(dateObj.getDate()).padStart(2, '0');
@@ -183,7 +239,6 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
       const year = dateObj.getFullYear();
       return `${day}.${month}.${year}`;
     }
-    // Falls ungültig, gib das Original zurück
     return dateString;
   }
 
@@ -200,7 +255,7 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
               onChange={handleTitleChange}
             />
             <div className={styles.meta}>
-              <span className={styles.author}>Von {author}</span>
+              <span className={styles.author}>Von {authorName}</span>
               <div className={styles.dropdownWrap}>
                 <label>Fachbereich:&nbsp;</label>
                 <div className={styles.customDropdown} ref={dropdownRef}>
@@ -209,7 +264,9 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
                     className={styles.dropdownBtn}
                     onClick={() => setDropdownOpen((open) => !open)}
                   >
-                    {localDepartment.length > 0 ? localDepartment.join(', ') : 'Alle auswählen'}
+                    {localDepartment.length > 0
+                      ? localDepartment.join(', ')
+                      : 'Alle auswählen'}
                   </button>
                   {dropdownOpen && (
                     <div className={styles.dropdownList}>
@@ -227,16 +284,22 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
                   )}
                 </div>
               </div>
-              <span className={styles.date}>{formatDate(date)}</span>
+              <span className={styles.date}>
+                {formatDate(dateIso || new Date().toISOString())}
+              </span>
             </div>
           </>
         ) : (
           <>
-            <h2 className={styles.title}>{title}</h2>
+            <h2 className={styles.title}>{localTitle || '(ohne Titel)'}</h2>
             <div className={styles.meta}>
-              <span className={styles.author}>Von {author}</span>
-              <span className={styles.date}>{formatDate(date)}</span>
-              <span className={styles.department}>Fachbereich: {localDepartment.join(', ')}</span>
+              <span className={styles.author}>Von {authorName}</span>
+              <span className={styles.date}>
+                {formatDate(dateIso || new Date().toISOString())}
+              </span>
+              <span className={styles.department}>
+                Fachbereich: {localDepartment.join(', ')}
+              </span>
             </div>
           </>
         )}
@@ -244,13 +307,13 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
 
       {localEdit ? (
         <div className={styles.editorWrap}>
-          {/* Toolbar sitzt automatisch über dem Editor; zusätzlicher Container für Styling */}
+          {/* Wir editieren in HTML (Quill) */}
           <ReactQuill
             className={styles.quill}
             theme="snow"
             modules={quillModules}
             formats={quillFormats}
-            value={localContent}
+            value={localContent.body}
             onChange={handleContentChange}
           />
           {(onSave || onCancel) && (
@@ -283,22 +346,18 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
             dangerouslySetInnerHTML={{ __html: safeHtml }}
           />
           <div className={styles.actions}>
-            {maintain}
             {maintain && (
-              <button
-                className={styles.editBtn}
-                onClick={() => {
-                  setLocalEdit(true);
-                }}
-              >
-                Bearbeiten
-              </button>
-            )}
-            {/* Optional: Remove-Button, wenn nicht im Edit-Modus */}
-            {maintain && (
-              <button className={styles.removeBtn} onClick={handleRemove}>
-                Entfernen
-              </button>
+              <>
+                <button
+                  className={styles.editBtn}
+                  onClick={() => setLocalEdit(true)}
+                >
+                  Bearbeiten
+                </button>
+                <button className={styles.removeBtn} onClick={handleRemove}>
+                  Entfernen
+                </button>
+              </>
             )}
           </div>
         </>
@@ -307,4 +366,4 @@ const EditableBasicPostComponent: React.FC<BasicPostComponentProps> = ({
   );
 };
 
-export default EditableBasicPostComponent;
+export default NewsPostCard;

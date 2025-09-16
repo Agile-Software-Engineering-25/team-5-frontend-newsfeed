@@ -1,95 +1,128 @@
-// src/types/newsfeed.ts
-export type Content = {
-  format: 'markdown' | 'html';
-  body: string;
-};
+export type ISODateTime = string;
+export type Nullable<T> = T | null;
 
-export type FeaturedImage = {
-  url?: string;
+// ----- Enums / Literal Unions -----
+export type PostStatus = 'draft' | 'published' | 'archived' | 'deleted';
+export type ContentFormat = 'markdown' | 'html';
+export type PrincipalType = 'user' | 'group';
+
+// ----- Core Schemas -----
+export interface Content {
+  format: ContentFormat; // required
+  body: string; // required
+}
+
+export interface FeaturedImage {
+  url?: string; // format: uri
   alt_text?: string;
   caption?: string;
-};
+}
 
-export type Author = {
-  user_id: string;
-  name: string;
-  avatar_url?: string | null;
-};
+export interface Author {
+  user_id: string; // required
+  name: string; // required
+  avatar_url?: Nullable<string>; // format: uri, nullable
+}
 
-export type Expiration = {
-  expires_at?: string | null; // ISO
-  auto_archive?: boolean | null;
-};
+export interface Expiration {
+  expires_at?: Nullable<ISODateTime>; // nullable
+  auto_archive?: Nullable<boolean>; // nullable
+}
 
-export type PrincipalRef = {
-  id: string;
-  type: 'user' | 'group';
-  name: string;
-};
+export interface PrincipalRef {
+  id: string; // required
+  type: PrincipalType; // required
+  name: string; // required
+}
 
-export type PermissionsRWX = {
+export interface PermissionsRWX {
   read?: PrincipalRef[];
   write?: PrincipalRef[];
   delete?: PrincipalRef[];
-};
+}
 
-export type PermissionsFlags = {
+export interface PermissionsFlags {
   update?: boolean;
   delete?: boolean;
-};
+}
 
-export type Settings = {
+export interface Settings {
   featured?: boolean;
   sticky?: boolean;
-};
+}
 
-export type BlogPostCreate = {
+// ----- Entity Schemas -----
+export interface NewsPostCreate {
+  // required
   id: string;
   title: string;
   summary: string;
-  status: 'draft' | 'published' | 'archived' | 'deleted';
+  status: PostStatus;
   content: Content;
-  featured_image?: FeaturedImage;
   author: Author;
-  creation_date: string; // ISO
-  publish_date?: string | null;
-  last_modified?: string | null;
+  creation_date: ISODateTime;
+
+  // optional
+  featured_image?: FeaturedImage;
+  publish_date?: Nullable<ISODateTime>; // nullable
+  last_modified?: Nullable<ISODateTime>; // nullable
   expiration?: Expiration;
   permissions?: PermissionsRWX;
   settings?: Settings;
-};
+}
 
-export type BlogPostUpdate = BlogPostCreate;
+// Update = gleiche Struktur wie Create
+export type NewsPostUpdate = NewsPostCreate;
 
-export type BlogPostRead = {
+export interface NewsPostRead {
+  // required
   id: string;
   version: number;
   title: string;
   summary: string;
-  status: 'draft' | 'published' | 'archived' | 'deleted';
+  status: PostStatus;
   content: Content;
-  featured_image?: FeaturedImage;
   author: Author;
-  creation_date: string;
-  publish_date?: string | null;
-  last_modified?: string | null;
+  creation_date: ISODateTime;
+
+  // optional
+  featured_image?: FeaturedImage;
+  publish_date?: Nullable<ISODateTime>; // nullable
+  last_modified?: Nullable<ISODateTime>; // nullable
   permissions?: PermissionsFlags;
   settings?: Settings;
-};
+}
 
-export type BlogPostHistoryItem = {
+export interface NewsPostHistoryItem {
+  // required
   id: string;
   version: number;
   title: string;
+  summary: string;
+  status: PostStatus;
+  content: Content;
+  author: Author;
+  creation_date: ISODateTime;
+
+  // optional
   slug?: string;
-  summary: string;
-  status: 'draft' | 'published' | 'archived' | 'deleted';
-  content: Content;
   featured_image?: FeaturedImage;
-  author: Author;
-  creation_date: string;
-  publish_date?: string | null;
-  last_modified?: string | null;
+  publish_date?: Nullable<ISODateTime>; // nullable
+  last_modified?: Nullable<ISODateTime>; // nullable
   permissions?: PermissionsFlags;
   settings?: Settings;
-};
+}
+
+// ----- (Optional) Helper Types for API usage -----
+
+// GET /newsfeed response
+export type NewsPostListResponse = NewsPostRead[];
+
+// GET /newsfeed/{id}/history response
+export type NewsPostHistoryResponse = NewsPostHistoryItem[];
+
+// POST /newsfeed request body
+export type CreateNewsPostRequest = NewsPostCreate;
+
+// PUT /newsfeed/{id} request body
+export type UpdateNewsPostRequest = NewsPostUpdate;

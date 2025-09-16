@@ -1,0 +1,291 @@
+openapi: 3.0.3
+info:
+  title: Newsfeed API
+  version: 1.0.0
+  description: API für Blog-Posts (Erstellen, Lesen, Aktualisieren, Löschen) und Versions-Historie.
+servers:
+  - url: http://localhost:8080/
+tags:
+  - name: Newsfeed
+    description: Blogpost-Operationen
+
+paths:
+  /newsfeed:
+    post:
+      tags: [Newsfeed]
+      summary: Create Blogpost
+      description: Erstellt einen neuen Blogpost.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BlogPostCreate'
+      responses:
+        '200':
+          description: Blogpost erstellt
+    get:
+      tags: [Newsfeed]
+      summary: Read Blogpost (Liste)
+      description: Liest Blogposts, optional gefiltert.
+      parameters:
+        - in: query
+          name: filter
+          description: Kompakte Filter-Syntax (RSQL-ähnlich); wird ignoriert, wenn einzelne Query-Parameter genutzt werden.
+          schema: { type: string }
+          examples:
+            publishedByU42:
+              summary: Published und Autor u42
+              value: status==published;author.user_id==u42
+            rangeAndLike:
+              summary: Titel enthält "solar" ab 2025-06-01, neueste zuerst
+              value: title=like=*solar*;publish_date=ge=2025-06-01T00:00:00Z
+            notDeletedStickyOrTwoAuthors:
+              summary: Nicht gelöscht, sticky und (Autor u1 oder u2)
+              value: status!=deleted;settings.sticky==true;(author.user_id==u1,author.user_id==u2)
+
+      responses:   # 👈 hier eine Stufe eingerückt wie "parameters"
+        '200':
+          description: Liste von Blogposts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BlogPostRead'
+
+
+
+  /newsfeed/{id}:
+    put:
+      tags: [Newsfeed]
+      summary: Update Blogpost
+      description: Aktualisiert einen bestehenden Blogpost per ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BlogPostUpdate'
+      responses:
+        '200':
+          description: Blogpost aktualisiert
+    delete:
+      tags: [Newsfeed]
+      summary: Delete Blogpost
+      description: Löscht (oder markiert als gelöscht) einen Blogpost per ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Blogpost gelöscht
+
+  /newsfeed/{id}/history:
+    get:
+      tags: [Newsfeed]
+      summary: History Blogpost
+      description: Gibt die Versionshistorie eines Blogposts zurück.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Versionsliste
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BlogPostHistoryItem'
+
+components:
+  schemas:
+    BlogPostCreate:
+      type: object
+      required: [id, title, summary, status, content, author, creation_date]
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        summary:
+          type: string
+        status:
+          type: string
+          enum: [draft, published, archived, deleted]
+        content:
+          $ref: '#/components/schemas/Content'
+        featured_image:
+          $ref: '#/components/schemas/FeaturedImage'
+        author:
+          $ref: '#/components/schemas/Author'
+        creation_date:
+          type: string
+          format: date-time
+        publish_date:
+          type: string
+          format: date-time
+          nullable: true
+        last_modified:
+          type: string
+          format: date-time
+          nullable: true
+        expiration:
+          $ref: '#/components/schemas/Expiration'
+        permissions:
+          $ref: '#/components/schemas/PermissionsRWX'
+        settings:
+          $ref: '#/components/schemas/Settings'
+
+    BlogPostUpdate:
+      allOf:
+        - $ref: '#/components/schemas/BlogPostCreate'
+      description: Gleich wie Create-Struktur für Updates.
+
+    BlogPostRead:
+      type: object
+      required: [id, version, title, summary, status, content, author, creation_date]
+      properties:
+        id: { type: string }
+        version: { type: integer }
+        title: { type: string }
+        summary: { type: string }
+        status:
+          type: string
+          enum: [draft, published, archived, deleted]
+        content:
+          $ref: '#/components/schemas/Content'
+        featured_image:
+          $ref: '#/components/schemas/FeaturedImage'
+        author:
+          $ref: '#/components/schemas/Author'
+        creation_date:
+          type: string
+          format: date-time
+        publish_date:
+          type: string
+          format: date-time
+          nullable: true
+        last_modified:
+          type: string
+          format: date-time
+          nullable: true
+        permissions:
+          $ref: '#/components/schemas/PermissionsFlags'
+        settings:
+          $ref: '#/components/schemas/Settings'
+
+    BlogPostHistoryItem:
+      type: object
+      required: [id, version, title, summary, status, content, author, creation_date]
+      properties:
+        id: { type: string }
+        version: { type: integer }
+        title: { type: string }
+        slug: { type: string }
+        summary: { type: string }
+        status:
+          type: string
+          enum: [draft, published, archived, deleted]
+        content:
+          $ref: '#/components/schemas/Content'
+        featured_image:
+          $ref: '#/components/schemas/FeaturedImage'
+        author:
+          $ref: '#/components/schemas/Author'
+        creation_date:
+          type: string
+          format: date-time
+        publish_date:
+          type: string
+          format: date-time
+          nullable: true
+        last_modified:
+          type: string
+          format: date-time
+          nullable: true
+        permissions:
+          $ref: '#/components/schemas/PermissionsFlags'
+        settings:
+          $ref: '#/components/schemas/Settings'
+
+    Content:
+      type: object
+      required: [format, body]
+      properties:
+        format:
+          type: string
+          enum: [markdown, html]
+        body:
+          type: string
+
+    FeaturedImage:
+      type: object
+      properties:
+        url: { type: string, format: uri }
+        alt_text: { type: string }
+        caption: { type: string }
+
+    Author:
+      type: object
+      required: [user_id, name]
+      properties:
+        user_id: { type: string }
+        name: { type: string }
+        avatar_url: { type: string, format: uri, nullable: true }
+
+    Expiration:
+      type: object
+      properties:
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+        auto_archive:
+          type: boolean
+          nullable: true
+
+    PrincipalRef:
+      type: object
+      required: [id, type, name]
+      properties:
+        id: { type: string }
+        type:
+          type: string
+          enum: [user, group]
+        name: { type: string }
+
+    PermissionsRWX:
+      type: object
+      properties:
+        read:
+          type: array
+          items: { $ref: '#/components/schemas/PrincipalRef' }
+        write:
+          type: array
+          items: { $ref: '#/components/schemas/PrincipalRef' }
+        delete:
+          type: array
+          items: { $ref: '#/components/schemas/PrincipalRef' }
+
+    PermissionsFlags:
+      type: object
+      properties:
+        update: { type: boolean }
+        delete: { type: boolean }
+
+    Settings:
+      type: object
+      properties:
+        featured: { type: boolean }
+        sticky: { type: boolean }
