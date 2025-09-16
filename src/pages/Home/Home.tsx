@@ -14,6 +14,7 @@ interface NewsPost {
   author: string;
   date: string; // ISO (YYYY-MM-DD) empfohlen
   content: string; // HTML-String
+  department?: string;
   maintain?: boolean; // steuert Edit-/Remove-Buttons
 }
 
@@ -27,6 +28,7 @@ const emptyPost: NewsPost = {
   author: '',
   date: '',
   content: '',
+  department: 'Alle',
   maintain: false,
 };
 
@@ -95,9 +97,14 @@ const Home = () => {
   // Sortierung „neueste oben“
   const sortedPosts = useMemo(
     () =>
-      [...localPostsList].sort(
-        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-      ),
+      [...localPostsList].sort((a, b) => {
+        const dateA = new Date(a.date).getTime();
+        const dateB = new Date(b.date).getTime();
+        if (dateA === dateB) {
+          return b.post_id - a.post_id;
+        }
+        return dateB - dateA;
+      }),
     [localPostsList]
   );
 
@@ -135,35 +142,51 @@ const Home = () => {
   const handleCreate = ({
     title,
     content,
+    department,
   }: {
     post_id?: number;
     title: string;
     content: string;
+    department?: string;
   }) => {
     const newPost: NewsPost = {
-      post_id: (localPostsList[0]?.post_id ?? 0) + 1,
+      post_id: (localPostsList[0]?.post_id ?? 0) + 1, // macht Backend?
       title,
       author: 'Aktuell',
       date: new Date().toISOString().slice(0, 10),
       content,
-      maintain: role === 'admin',
+      department: department || 'Alle',
+      maintain: role === 'admin', // Sinn?? Lieber im Backend?
     };
-    setLocalPostsList((prev) => [...prev, newPost]);
-    // optional: gleich auf Seite 1 springen, damit neuer Post sichtbar ist
-    setFilters((f) => ({ ...f, page: 1 }));
+    console.log('Neuer Post:', newPost);
+
+    setLocalPostsList((prev) =>
+      [...prev, newPost].sort((a, b) => {
+        const dateA = new Date(a.date).getTime();
+        const dateB = new Date(b.date).getTime();
+        if (dateA === dateB) {
+          return b.post_id - a.post_id; // sorgt dafür dass auch am selben Tag die neuen Posts oben stehen
+        }
+        return dateB - dateA;
+      })
+    );
   };
 
   const handleUpdate = ({
     post_id,
     title,
     content,
+    department,
   }: {
     post_id: number;
     title: string;
     content: string;
+    department?: string;
   }) => {
     setLocalPostsList((prev) =>
-      prev.map((p) => (p.post_id === post_id ? { ...p, title, content } : p))
+      prev.map((p) =>
+        p.post_id === post_id ? { ...p, title, content, department: department || p.department } : p
+      )
     );
   };
 
@@ -197,6 +220,7 @@ const Home = () => {
           author={emptyPost.author}
           date={emptyPost.date}
           content={emptyPost.content}
+          department={emptyPost.department}
           addPost={true}
           maintain={true}
           onSave={handleCreate}
@@ -212,6 +236,7 @@ const Home = () => {
           author={post.author}
           date={fmtDE(post.date)}
           content={post.content}
+          department={post.department}
           maintain={role === 'admin'}
           onSave={handleUpdate}
           onRemove={() => handleRemove(post.post_id)}

@@ -5,6 +5,7 @@ interface BasicPostComponentProps {
   author: string;
   date: string;
   content: string;
+  department: string;
 }
 
 const BasicPostComponent: React.FC<BasicPostComponentProps> = ({
@@ -12,6 +13,7 @@ const BasicPostComponent: React.FC<BasicPostComponentProps> = ({
   author,
   date,
   content,
+  department = 'Alle',
 }) => {
   return (
     <article className={styles.card}>
@@ -20,6 +22,7 @@ const BasicPostComponent: React.FC<BasicPostComponentProps> = ({
         <div className={styles.meta}>
           <span className={styles.author}>Von {author}</span>
           <span className={styles.date}>{date}</span>
+          <span className={styles.department}>Fachbereich: {department}</span>
         </div>
       </header>
       <p style={{ whiteSpace: "pre-line" }} className={styles.body}> {content} </p>
