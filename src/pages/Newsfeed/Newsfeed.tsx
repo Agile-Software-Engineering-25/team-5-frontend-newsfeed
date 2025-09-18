@@ -36,8 +36,8 @@ const Newsfeed: React.FC = () => {
   });
 
   // Query-String aus der FilterBar -> wird 1:1 an die API gegeben
-  // const filterQuery = useMemo(() => buildQuery(filters), [filters]);
-  const filterQuery = undefined; // für den Anfang: kein Filter
+  const filterQuery = useMemo(() => buildQuery(filters), [filters]);
+  //const filterQuery = undefined; // für den Anfang: kein Filter
 
   // Backend-Load (ohne Frontend-Filterung)
   useEffect(() => {
@@ -139,6 +139,8 @@ const Newsfeed: React.FC = () => {
       >
         ?{filterQuery}
       </div>
+
+
 
       {loading && <div>Wird geladen…</div>}
       {error && <div style={{ color: 'crimson' }}>Fehler: {error}</div>}

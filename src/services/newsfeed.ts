@@ -23,11 +23,13 @@ export function createPost(body: NewsPostCreate) {
  * GET /newsfeed
  * Optional: ?filter=...
  */
-export function listPosts(params?: ListParams) {
-  return apiClient.get<NewsPostRead[]>('/newsfeed', {
-    query: params?.filter ? { filter: params.filter } : undefined,
+export async function listPosts(params?: ListParams) {
+  const result = await apiClient.get<NewsPostRead[]>('/newsfeed', {
+    query: params?.filter ? params?.filter : undefined,
     signal: params?.signal,
   });
+  console.log("Result" + result);
+  return result;
 }
 
 /**
