@@ -50,7 +50,7 @@ const Newsfeed: React.FC = () => {
           filter: filterQuery || undefined,
           signal: ac.signal,
         });
-        setPosts(result);
+        setPosts(result.reverse());
       } catch (e) {
         if ((e as Error).name !== 'AbortError') {
           setError((e as Error).message);
@@ -139,8 +139,6 @@ const Newsfeed: React.FC = () => {
       >
         ?{filterQuery}
       </div>
-
-
 
       {loading && <div>Wird geladen…</div>}
       {error && <div style={{ color: 'crimson' }}>Fehler: {error}</div>}

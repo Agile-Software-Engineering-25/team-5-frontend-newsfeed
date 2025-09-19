@@ -200,8 +200,9 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
 
     onSave?.({ post: payload });
 
-    // Nach Speichern in den View-Modus wechseln
-    setLocalEdit(false);
+    // Nach Speichern zurücksetzen für neuen Post
+    setLocalTitle('');
+    setLocalContent({ format: 'html', body: '' });
   }, [post, localTitle, localContent.body, authorName, onSave]);
 
   const handleCancel = useCallback(() => {

@@ -28,14 +28,14 @@ export function buildQuery(state: FilterState): string {
     const to = new Date();
     const from = new Date();
     from.setDate(to.getDate() - 7);
-    params.set('from', from.toISOString());
-    params.set('to', to.toISOString());
+    params.set('from', from.toISOString().slice(0, 10));
+    params.set('to', to.toISOString().slice(0, 10));
   } else if (state.datePreset === '30d') {
     const to = new Date();
     const from = new Date();
     from.setDate(to.getDate() - 30);
-    params.set('from', from.toISOString());
-    params.set('to', to.toISOString());
+    params.set('from', from.toISOString().slice(0, 10));
+    params.set('to', to.toISOString().slice(0, 10));
   } else if (state.datePreset === 'custom') {
     if (state.from) params.set('from', state.from);
     if (state.to) params.set('to', state.to);
