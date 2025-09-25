@@ -129,6 +129,11 @@ const Newsfeed: React.FC = () => {
         pageSizeOptions={[10, 20, 50]}
       />
 
+      <div>
+        {/* Falls du die Posts als JSON sehen willst: */}
+        <pre>{JSON.stringify(posts, null, 2)}</pre>
+      </div>
+
       <div
         style={{
           fontFamily: 'monospace',
@@ -146,7 +151,7 @@ const Newsfeed: React.FC = () => {
       {role === 'admin' && (
         <NewsPostCard
           post={newPostDraft}
-          startEditing={true}
+          postViewProp="add"
           maintain={true}
           onChange={handleChange}
           onSave={handleCreate}

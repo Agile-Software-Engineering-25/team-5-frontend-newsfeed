@@ -35,8 +35,7 @@ interface NewsPostCardProps {
   /** Der Post (Read oder Create/Update-Entwurf) */
   post: EditablePost;
 
-  /** Wenn true, startet im Edit-Modus (z.B. "Neuen Post anlegen") */
-  startEditing?: boolean;
+  postViewProp?: 'add' | 'edit' | 'show';
 
   /** Optionales UI-Tagging außerhalb des API-Schemas */
   department?: string;
@@ -55,7 +54,7 @@ const departmentOptions = ['Alle', 'F1', 'F2', 'F3', 'F4'];
 
 const NewsPostCard: React.FC<NewsPostCardProps> = ({
   post,
-  startEditing = false,
+  postViewProp = 'show',
   department = 'Alle',
   maintain,
   onChange,
@@ -76,7 +75,9 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
   // Lokaler Zustand
   const [localTitle, setLocalTitle] = useState<string>(initialTitle);
   const [localContent, setLocalContent] = useState<NewsContent>(initialContent);
-  const [localEdit, setLocalEdit] = useState<boolean>(startEditing);
+  const [postView, setPostView] = useState<'add' | 'edit' | 'show'>(
+    postViewProp
+  );
   const [localDepartment, setLocalDepartment] = useState<string[]>(
     department ? department.split(',') : ['Alle']
   );
@@ -114,7 +115,6 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
     }),
     []
   );
-
   const quillFormats = useMemo(
     () => [
       'header',
@@ -205,8 +205,32 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
     setLocalContent({ format: 'html', body: '' });
   }, [post, localTitle, localContent.body, authorName, onSave]);
 
+  const handleEdit = useCallback(() => {
+    const payload: NewsPostCreate | NewsPostUpdate = {
+      // Pflichtfelder laut Schema
+      id: post.id,
+      title: localTitle.trim(),
+      summary: post.summary ?? '',
+      status: post.status ?? 'draft',
+      content: { format: 'html', body: localContent.body },
+      author: post.author ?? { user_id: 'unknown', name: authorName },
+      creation_date: post.creation_date ?? new Date().toISOString(),
+
+      // Optionale Felder, sofern vorhanden
+      featured_image: post.featured_image,
+      publish_date: post.publish_date ?? null,
+      last_modified: new Date().toISOString(),
+      expiration: undefined,
+      permissions: (post as NewsPostCreate).permissions,
+      settings: post.settings,
+    };
+
+    onSave?.({ post: payload });
+    setPostView('show');
+  }, [post, localTitle, localContent.body, authorName, onSave]);
+
   const handleCancel = useCallback(() => {
-    setLocalEdit(false);
+    setPostView('show');
     setLocalTitle(initialTitle);
     setLocalContent(initialContent);
     onCancel?.();
@@ -246,7 +270,7 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
   return (
     <article className={styles.card}>
       <header className={styles.header}>
-        {localEdit ? (
+        {postView === 'edit' || postView === 'add' ? (
           <>
             <input
               className={styles.titleInput}
@@ -306,7 +330,31 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
         )}
       </header>
 
-      {localEdit ? (
+      {postView === 'show' ? (
+        <>
+          {/* Anzeige: Quill-HTML sicher rendern */}
+          <div
+            className={styles.body}
+            dangerouslySetInnerHTML={{ __html: safeHtml }}
+          />
+          <div className={styles.actions}>
+            {maintain && (
+              <>
+                <button
+                  className={styles.editBtn}
+                  // setLocalEdit existiert nicht, vermutlich sollte hier setPostView verwendet werden
+                  onClick={() => setPostView('edit')}
+                >
+                  Bearbeiten
+                </button>
+                <button className={styles.removeBtn} onClick={handleRemove}>
+                  Entfernen
+                </button>
+              </>
+            )}
+          </div>
+        </>
+      ) : postView === 'add' ? (
         <div className={styles.editorWrap}>
           {/* Wir editieren in HTML (Quill) */}
           <ReactQuill
@@ -333,35 +381,42 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
                   Speichern
                 </button>
               )}
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className={styles.editorWrap}>
+          {/* Wir editieren in HTML (Quill) */}
+          <ReactQuill
+            className={styles.quill}
+            theme="snow"
+            modules={quillModules}
+            formats={quillFormats}
+            value={localContent.body}
+            onChange={handleContentChange}
+          />
+          {(onSave || onCancel) && (
+            <div className={styles.actions}>
+              {onSave && (
+                <button
+                  className={styles.saveBtn}
+                  onClick={handleEdit}
+                  disabled={!localTitle.trim()}
+                  title={
+                    localTitle.trim()
+                      ? 'Speichern'
+                      : 'Titel darf nicht leer sein'
+                  }
+                >
+                  Speichern
+                </button>
+              )}
               <button className={styles.cancelBtn} onClick={handleCancel}>
                 Abbrechen
               </button>
             </div>
           )}
         </div>
-      ) : (
-        <>
-          {/* Anzeige: Quill-HTML sicher rendern */}
-          <div
-            className={styles.body}
-            dangerouslySetInnerHTML={{ __html: safeHtml }}
-          />
-          <div className={styles.actions}>
-            {maintain && (
-              <>
-                <button
-                  className={styles.editBtn}
-                  onClick={() => setLocalEdit(true)}
-                >
-                  Bearbeiten
-                </button>
-                <button className={styles.removeBtn} onClick={handleRemove}>
-                  Entfernen
-                </button>
-              </>
-            )}
-          </div>
-        </>
       )}
     </article>
   );
