@@ -54,7 +54,6 @@ export interface Settings {
 // ----- Entity Schemas -----
 export interface NewsPostCreate {
   // required
-  id: string;
   title: string;
   summary: string;
   status: PostStatus;
@@ -63,6 +62,7 @@ export interface NewsPostCreate {
   creation_date: ISODateTime;
 
   // optional
+  id: string; // required for Create to identify the resource
   featured_image?: FeaturedImage;
   publish_date?: Nullable<ISODateTime>; // nullable
   last_modified?: Nullable<ISODateTime>; // nullable

@@ -36,8 +36,8 @@ const Newsfeed: React.FC = () => {
   });
 
   // Query-String aus der FilterBar -> wird 1:1 an die API gegeben
-  // const filterQuery = useMemo(() => buildQuery(filters), [filters]);
-  const filterQuery = undefined; // für den Anfang: kein Filter
+  const filterQuery = useMemo(() => buildQuery(filters), [filters]);
+  //const filterQuery = undefined; // für den Anfang: kein Filter
 
   // Backend-Load (ohne Frontend-Filterung)
   useEffect(() => {
@@ -50,7 +50,7 @@ const Newsfeed: React.FC = () => {
           filter: filterQuery || undefined,
           signal: ac.signal,
         });
-        setPosts(result);
+        setPosts(result.reverse());
       } catch (e) {
         if ((e as Error).name !== 'AbortError') {
           setError((e as Error).message);
@@ -129,6 +129,11 @@ const Newsfeed: React.FC = () => {
         pageSizeOptions={[10, 20, 50]}
       />
 
+      <div>
+        {/* Falls du die Posts als JSON sehen willst: */}
+        <pre>{JSON.stringify(posts, null, 2)}</pre>
+      </div>
+
       <div
         style={{
           fontFamily: 'monospace',
@@ -146,7 +151,7 @@ const Newsfeed: React.FC = () => {
       {role === 'admin' && (
         <NewsPostCard
           post={newPostDraft}
-          startEditing={true}
+          postViewProp="add"
           maintain={true}
           onChange={handleChange}
           onSave={handleCreate}

@@ -2,7 +2,7 @@
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080';
 
 type RequestOpts = {
-  query?: Record<string, string | number | boolean | undefined>;
+  query?: string;
   body?: unknown;
   signal?: AbortSignal;
   ifMatch?: string | number;
@@ -11,12 +11,7 @@ type RequestOpts = {
 
 function withQuery(path: string, query?: RequestOpts['query']) {
   if (!query) return path;
-  const usp = new URLSearchParams();
-  Object.entries(query).forEach(([k, v]) => {
-    if (v !== undefined) usp.set(k, String(v));
-  });
-  const qs = usp.toString();
-  return qs ? `${path}?${qs}` : path;
+  return query ? `${path}?${query}` : path;
 }
 
 async function request<T>(
@@ -35,7 +30,6 @@ async function request<T>(
     ...(opts.headers ?? {}),
   };
 
-  console.log("Hello"+method, url.toString());
   const res = await fetch(url, {
     method,
     headers,
@@ -43,7 +37,7 @@ async function request<T>(
       opts.body && !(opts.body instanceof FormData)
         ? JSON.stringify(opts.body)
         : (opts.body as BodyInit | undefined),
-    credentials: 'include',
+    credentials: 'omit',
     signal: opts.signal,
   });
 
