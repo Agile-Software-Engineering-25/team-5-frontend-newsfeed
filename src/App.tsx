@@ -6,6 +6,10 @@ import './i18n';
 import { Provider } from 'react-redux';
 import store from '@stores/index.ts';
 import Newsfeed from '@pages/Newsfeed/Newsfeed.tsx';
+import {
+  createCustomJoyTheme,
+  createCustomMuiTheme,
+} from '@agile-software/shared-components';
 
 const theme = createCustomTheme({
   colorSchemes: {
