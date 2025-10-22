@@ -1,6 +1,6 @@
 import { BrowserRouter } from 'react-router';
-import { createCustomTheme } from '@agile-software/shared-components';
-import { THEME_ID as MATERIAL_THEME_ID, ThemeProvider } from '@mui/material';
+import { THEME_ID as MATERIAL_THEME_ID} from '@mui/material';
+import { ThemeProvider } from '@mui/material/styles';
 import { CssVarsProvider as JoyCssVarsProvider } from '@mui/joy';
 import './i18n';
 import { Provider } from 'react-redux';
@@ -11,37 +11,20 @@ import {
   createCustomMuiTheme,
 } from '@agile-software/shared-components';
 
-const theme = createCustomTheme({
-  colorSchemes: {
-    light: {
-      palette: {
-        primary: {
-          500: '#your-primary-color',
-        },
-      },
-    },
-  },
-  components: {
-    JoyButton: {
-      styleOverrides: {
-        root: {
-          borderRadius: '8px',
-        },
-      },
-    },
-  },
-});
+const joyTheme = createCustomJoyTheme();
+const muiTheme = createCustomMuiTheme();
 
-type AppProps = {
-  basename?: string;
-};
-
-function App({ basename }: AppProps) {
+function App() {
   return (
     <Provider store={store}>
-      <ThemeProvider theme={{ [MATERIAL_THEME_ID]: theme }}>
-        <JoyCssVarsProvider>
-          <BrowserRouter basename={basename}>
+      <ThemeProvider theme={{ [MATERIAL_THEME_ID]: muiTheme }}>
+        <JoyCssVarsProvider
+          theme={joyTheme}
+          defaultMode="light"
+          modeStorageKey="joy-mode"
+          colorSchemeStorageKey="joy-color-scheme"
+        >
+          <BrowserRouter>
             <Newsfeed />
           </BrowserRouter>
         </JoyCssVarsProvider>
