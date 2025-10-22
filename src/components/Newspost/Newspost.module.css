@@ -1,5 +1,5 @@
 body {
-  background-color: #cddfe9;
+  background-color: #ffffff;
   margin: 0;
   font-family: "Inter", sans-serif;
   display: flex;
@@ -8,17 +8,22 @@ body {
 }
 
 .card {
-  width: 1000px;
+  width: 100%;
+  max-width: 1000px; /* gleiche Breite wie FilterBar / gewünschte Fixbreite */
   min-height: 340px;
-  margin: 32px auto;
-  background: #ffffff;
-  border-radius: 24px;
+  margin: 35px auto;
+  padding: 30px;
+  background: #e3edf9;
+  border-radius:12px;
   overflow: hidden;
   color: #1a1a1a;
   display: flex;
   flex-direction: column;
-  border: 1px solid rgba(255, 255, 255, 0.9);
   transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+#filter-bar {
+  background-color: #e3edf9;
 }
 
 .header {
@@ -26,18 +31,7 @@ body {
   flex-direction: column;
   justify-content:space-evenly;
   padding: 16px 16px 24px 24px;
-  background: linear-gradient(to right, #f5f5f5, #ececec);
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.title {
-  margin-bottom: 12px;
-  font-size: 32px;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-  background: linear-gradient(90deg, #272727, #4a4a4a);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
 }
 
 .author {
@@ -82,7 +76,7 @@ body {
     padding: 16px;
   }
   .header {
-    padding: 10px 10px 16px 12px;
+    padding: 6px 6px 16px 12px;
   }
 }
 
@@ -92,8 +86,8 @@ body {
   font-size: 24px;
   font-weight: 700;
   border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 10px 13px 10px 13px;
+  border-radius: 6px;
+  padding: 6px 13px 6px 13px;
   outline: none;
   margin-left: 4px;
   margin-right: 4px;
@@ -103,23 +97,18 @@ body {
   border-color: #999;
 }
 
+/* Quill-Klassen global ansprechen */
+.quill :global(.ql-editor) {
+  min-height: 180px;    /* <- Eingabefeld-Mindesthöhe */
+  padding: 12px;
+}
+
 .editorWrap {
   margin-top: 24px;
+  background-color: #fff;
+  border-radius: 6px;
 }
 
-/* Quill-Container leicht eingerahmt, Toolbar wirkt wie E-Mail-Editor */
-.quill .ql-toolbar {
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-}
-
-.quill .ql-container {
-  min-height: 240px;
-  border-bottom-left-radius: 10px;
-  border-bottom-right-radius: 10px;
-}
-
-/* Buttons unten rechts */
 .actions {
   display: flex;
   gap: 12px;
@@ -130,110 +119,74 @@ body {
   padding-bottom: 16px;
 }
 
-.saveBtn, .cancelBtn {
-  border: none;
-  border-radius: 9999px;
-  padding: 10px 19px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 16px;
-}
-.saveBtn { background: #111; color: #fff; }
-.saveBtn:disabled { opacity: 0.5; cursor: not-allowed; }
-.cancelBtn { background: #eee; color: #111; }
 
-.removeBtn {
-  background: #ff4d4d;
-  color: #fff;
-  border: none;
-  border-radius: 9999px;
-  padding: 10px 19px;
-  cursor: pointer;
-  font-weight: 600;
-}
-.removeBtn:hover {
-  background: #ff1a1a;
-}
 
-.editBtn {
-  background: #767676;
-  color: #fff;
-  border: none;
-  border-radius: 9999px;
-  padding: 10px 19px;
-  cursor: pointer;
-  font-weight: 600;
-}
-.editBtn:hover {
-  background: #4c4c4c;
-}
 
-.dropdownWrap {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
 
-.customDropdown {
-  position: relative;
-  min-width: 180px;
-}
+.dropdownWrap { display: flex; align-items: center; gap: 8px; }
+.customDropdown { position: relative; min-width: 180px; }
 
 .dropdownBtn {
   width: 100%;
-  background: #f5f5f5;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 8px 16px;
-  font-size: 16px;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+  border: 1px solid rgba(16,24,40,0.08);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
   cursor: pointer;
   text-align: left;
-  transition: border-color 0.2s;
+  transition: background 0.12s, border-color 0.12s, box-shadow 0.12s;
+  box-shadow: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
 }
-.dropdownBtn:hover, .dropdownBtn:focus {
-  border-color: #999;
-  background: #e9e9e9;
-}
+.dropdownBtn:hover,
+.dropdownBtn:focus { background: #f7fbff; border-color: rgba(16,24,40,0.12); box-shadow: 0 4px 12px rgba(16,24,40,0.04); }
 
+/* Dropdown-Liste: leichter "Paper"-Look */
 .dropdownList {
   position: absolute;
   top: 110%;
   left: 0;
   width: 100%;
   background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-  padding: 8px 12px;
+  border-radius: 6px;
+  box-shadow: 0 6px 30px rgba(16,24,40,0.08);
+  padding: 8px 8px;
   z-index: 10;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
+  min-width: 180px;
+  border: 1px solid rgba(16,24,40,0.04);
 }
 
+/* Item-Look wie Joy Menu Items (leichte Rundung, Hover) */
 .dropdownItem {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 16px;
-  padding: 4px 8px;
+  font-size: 14px;
+  padding: 8px 6px;
   border-radius: 6px;
-  transition: background 0.2s;
+  transition: background 0.12s, color 0.12s;
 }
-.dropdownItem:hover {
-  background: #f0f4f8;
-}
+.dropdownItem:hover { background: rgba(15,23,42,0.04); }
 
+/* Checkbox-Anpassung: etwas größere Checkbox ähnlich Joy */
 .dropdownItem input[type="checkbox"] {
-  accent-color: #111;
+  accent-color: #2b6ef6;
   width: 18px;
   height: 18px;
+  margin: 0;
 }
 
 .authorInput {
   width: 100%;
   font-size: 24px;
   border: 1px solid #ddd;
-  border-radius: 10px;
+  border-radius: 6px;
   padding: 8px 13px;
   outline: none;
   margin-bottom: 8px;

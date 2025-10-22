@@ -6,6 +6,7 @@ import React, {
   useEffect,
 } from 'react';
 import styles from './Newspost.module.css';
+import { Button as JoyButton, Checkbox as JoyCheckbox } from '@mui/joy';
 
 // Falls ihr Next.js nutzt, ReactQuill dynamisch importieren.
 import ReactQuill from 'react-quill';
@@ -177,9 +178,8 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
     }
   };
 
-  const handleSave = useCallback(() => {
-    // NewsPostCreate/Update Payload aufbauen
-    const payload: NewsPostCreate | NewsPostUpdate = {
+  const buildPayload = useCallback((): NewsPostCreate | NewsPostUpdate => {
+    return {
       // Pflichtfelder laut Schema
       id: post.id,
       title: localTitle.trim(),
@@ -197,37 +197,24 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
       permissions: (post as NewsPostCreate).permissions,
       settings: post.settings,
     };
+  }, [post, localTitle, localContent.body, authorName]);
 
+  const handleSave = useCallback(() => {
+    const payload = buildPayload();
     onSave?.({ post: payload });
 
-    // Nach Speichern zurücksetzen für neuen Post
-    setLocalTitle('');
-    setLocalContent({ format: 'html', body: '' });
-  }, [post, localTitle, localContent.body, authorName, onSave]);
+    // Nach Speichern zurücksetzen für neuen Post (nur im add-Modus sinnvoll)
+    if (postView === 'add') {
+      setLocalTitle('');
+      setLocalContent({ format: 'html', body: '' });
+    }
+  }, [buildPayload, onSave, postView]);
 
   const handleEdit = useCallback(() => {
-    const payload: NewsPostCreate | NewsPostUpdate = {
-      // Pflichtfelder laut Schema
-      id: post.id,
-      title: localTitle.trim(),
-      summary: post.summary ?? '',
-      status: post.status ?? 'draft',
-      content: { format: 'html', body: localContent.body },
-      author: post.author ?? { user_id: 'unknown', name: authorName },
-      creation_date: post.creation_date ?? new Date().toISOString(),
-
-      // Optionale Felder, sofern vorhanden
-      featured_image: post.featured_image,
-      publish_date: post.publish_date ?? null,
-      last_modified: new Date().toISOString(),
-      expiration: undefined,
-      permissions: (post as NewsPostCreate).permissions,
-      settings: post.settings,
-    };
-
+    const payload = buildPayload();
     onSave?.({ post: payload });
     setPostView('show');
-  }, [post, localTitle, localContent.body, authorName, onSave]);
+  }, [buildPayload, onSave]);
 
   const handleCancel = useCallback(() => {
     setPostView('show');
@@ -267,6 +254,8 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
     return dateString;
   }
 
+  const isTitleValid = Boolean(localTitle.trim());
+
   return (
     <article className={styles.card}>
       <header className={styles.header}>
@@ -284,25 +273,29 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
               <div className={styles.dropdownWrap}>
                 <label>Fachbereich:&nbsp;</label>
                 <div className={styles.customDropdown} ref={dropdownRef}>
-                  <button
+                  <JoyButton
                     type="button"
                     className={styles.dropdownBtn}
+                    variant="outlined"
+                    size="sm"
+                    color="neutral"
                     onClick={() => setDropdownOpen((open) => !open)}
+                    endDecorator={<span style={{ marginLeft: 8 }}>▾</span>}
+                    sx={{ justifyContent: 'space-between', borderRadius: '6px', minWidth: '40px' }}
                   >
                     {localDepartment.length > 0
                       ? localDepartment.join(', ')
                       : 'Alle auswählen'}
-                  </button>
+                  </JoyButton>
                   {dropdownOpen && (
                     <div className={styles.dropdownList}>
                       {departmentOptions.map((option) => (
-                        <label key={option} className={styles.dropdownItem}>
-                          <input
-                            type="checkbox"
+                        <label key={option} className={styles.dropdownItem} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <JoyCheckbox
                             checked={localDepartment.includes(option)}
                             onChange={() => handleCheckboxChange(option)}
                           />
-                          {option}
+                          <span>{option}</span>
                         </label>
                       ))}
                     </div>
@@ -340,83 +333,75 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
           <div className={styles.actions}>
             {maintain && (
               <>
-                <button
-                  className={styles.editBtn}
-                  // setLocalEdit existiert nicht, vermutlich sollte hier setPostView verwendet werden
-                  onClick={() => setPostView('edit')}
-                >
+                <JoyButton onClick={() => setPostView('edit')}>
                   Bearbeiten
-                </button>
-                <button className={styles.removeBtn} onClick={handleRemove}>
+                </JoyButton>
+                <JoyButton onClick={handleRemove}>
                   Entfernen
-                </button>
+                </JoyButton>
               </>
             )}
           </div>
         </>
       ) : postView === 'add' ? (
-        <div className={styles.editorWrap}>
-          {/* Wir editieren in HTML (Quill) */}
-          <ReactQuill
-            className={styles.quill}
-            theme="snow"
-            modules={quillModules}
-            formats={quillFormats}
-            value={localContent.body}
-            onChange={handleContentChange}
-          />
+        <>
+          <div className={styles.editorWrap}>
+            {/* Wir editieren in HTML (Quill) */}
+            <ReactQuill
+              className={styles.quill}
+              theme="snow"
+              modules={quillModules}
+              formats={quillFormats}
+              value={localContent.body}
+              onChange={handleContentChange}
+            />
+          </div>
+
           {(onSave || onCancel) && (
             <div className={styles.actions}>
               {onSave && (
-                <button
-                  className={styles.saveBtn}
+                <JoyButton
                   onClick={handleSave}
-                  disabled={!localTitle.trim()}
-                  title={
-                    localTitle.trim()
-                      ? 'Speichern'
-                      : 'Titel darf nicht leer sein'
-                  }
+                  disabled={!isTitleValid}
+                  title={isTitleValid ? 'Speichern' : 'Titel darf nicht leer sein'}
                 >
                   Speichern
-                </button>
+                </JoyButton>
               )}
             </div>
           )}
-        </div>
+        </>
       ) : (
-        <div className={styles.editorWrap}>
-          {/* Wir editieren in HTML (Quill) */}
-          <ReactQuill
-            className={styles.quill}
-            theme="snow"
-            modules={quillModules}
-            formats={quillFormats}
-            value={localContent.body}
-            onChange={handleContentChange}
-          />
+        <>
+          <div className={styles.editorWrap}>
+            {/* Wir editieren in HTML (Quill) */}
+            <ReactQuill
+              className={styles.quill}
+              theme="snow"
+              modules={quillModules}
+              formats={quillFormats}
+              value={localContent.body}
+              onChange={handleContentChange}
+            />
+          </div>
+
           {(onSave || onCancel) && (
             <div className={styles.actions}>
               {onSave && (
-                <button
-                  className={styles.saveBtn}
+                <JoyButton
                   onClick={handleEdit}
-                  disabled={!localTitle.trim()}
-                  title={
-                    localTitle.trim()
-                      ? 'Speichern'
-                      : 'Titel darf nicht leer sein'
-                  }
+                  disabled={!isTitleValid}
+                  title={isTitleValid ? 'Speichern' : 'Titel darf nicht leer sein'}
                 >
                   Speichern
-                </button>
+                </JoyButton>
               )}
-              <button className={styles.cancelBtn} onClick={handleCancel}>
+              <JoyButton onClick={handleCancel}>
                 Abbrechen
-              </button>
+              </JoyButton>
             </div>
           )}
-        </div>
+        </>
       )}
     </article>
   );

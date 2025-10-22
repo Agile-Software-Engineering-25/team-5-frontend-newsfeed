@@ -122,6 +122,7 @@ const Newsfeed: React.FC = () => {
   };
 
   return (
+
     <div>
       <FilterBar
         initial={filters}
