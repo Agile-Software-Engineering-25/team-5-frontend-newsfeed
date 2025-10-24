@@ -70,8 +70,7 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
     body: '',
   };
   const authorName = post.author?.name ?? 'Unbekannt';
-  const dateIso =
-    post.publish_date ?? post.creation_date ?? post.last_modified ?? '';
+  const dateIso = post.creation_date
 
   // Lokaler Zustand
   const [localTitle, setLocalTitle] = useState<string>(initialTitle);
@@ -183,19 +182,10 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
       // Pflichtfelder laut Schema
       id: post.id,
       title: localTitle.trim(),
-      summary: post.summary ?? '',
-      status: post.status ?? 'draft',
       content: { format: 'html', body: localContent.body },
       author: post.author ?? { user_id: 'unknown', name: authorName },
       creation_date: post.creation_date ?? new Date().toISOString(),
-
-      // Optionale Felder, sofern vorhanden
-      featured_image: post.featured_image,
-      publish_date: post.publish_date ?? null,
-      last_modified: new Date().toISOString(),
-      expiration: undefined,
       permissions: (post as NewsPostCreate).permissions,
-      settings: post.settings,
     };
   }, [post, localTitle, localContent.body, authorName]);
 
@@ -281,7 +271,11 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
                     color="neutral"
                     onClick={() => setDropdownOpen((open) => !open)}
                     endDecorator={<span style={{ marginLeft: 8 }}>▾</span>}
-                    sx={{ justifyContent: 'space-between', borderRadius: '6px', minWidth: '40px' }}
+                    sx={{
+                      justifyContent: 'space-between',
+                      borderRadius: '6px',
+                      minWidth: '40px',
+                    }}
                   >
                     {localDepartment.length > 0
                       ? localDepartment.join(', ')
@@ -290,7 +284,15 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
                   {dropdownOpen && (
                     <div className={styles.dropdownList}>
                       {departmentOptions.map((option) => (
-                        <label key={option} className={styles.dropdownItem} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <label
+                          key={option}
+                          className={styles.dropdownItem}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 8,
+                          }}
+                        >
                           <JoyCheckbox
                             checked={localDepartment.includes(option)}
                             onChange={() => handleCheckboxChange(option)}
@@ -336,9 +338,7 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
                 <JoyButton onClick={() => setPostView('edit')}>
                   Bearbeiten
                 </JoyButton>
-                <JoyButton onClick={handleRemove}>
-                  Entfernen
-                </JoyButton>
+                <JoyButton onClick={handleRemove}>Entfernen</JoyButton>
               </>
             )}
           </div>
@@ -363,7 +363,9 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
                 <JoyButton
                   onClick={handleSave}
                   disabled={!isTitleValid}
-                  title={isTitleValid ? 'Speichern' : 'Titel darf nicht leer sein'}
+                  title={
+                    isTitleValid ? 'Speichern' : 'Titel darf nicht leer sein'
+                  }
                 >
                   Speichern
                 </JoyButton>
@@ -391,14 +393,14 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
                 <JoyButton
                   onClick={handleEdit}
                   disabled={!isTitleValid}
-                  title={isTitleValid ? 'Speichern' : 'Titel darf nicht leer sein'}
+                  title={
+                    isTitleValid ? 'Speichern' : 'Titel darf nicht leer sein'
+                  }
                 >
                   Speichern
                 </JoyButton>
               )}
-              <JoyButton onClick={handleCancel}>
-                Abbrechen
-              </JoyButton>
+              <JoyButton onClick={handleCancel}>Abbrechen</JoyButton>
             </div>
           )}
         </>

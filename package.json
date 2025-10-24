@@ -15,7 +15,7 @@
     "ci": "start-server-and-test dev http://localhost:5173 cy:run"
   },
   "dependencies": {
-    "@agile-software/shared-components": "^2.3.0",
+    "@agile-software/shared-components": "^2.3.1",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/joy": "^5.0.0-beta.52",
@@ -24,6 +24,8 @@
     "axios": "^1.11.0",
     "dompurify": "^3.2.6",
     "i18next": "^25.3.2",
+    "jwt-decode": "^4.0.0",
+    "oidc-client-ts": "^3.3.0",
     "quill": "^2.0.3",
     "react": "^18 || ^19",
     "react-dom": "^18 || ^19",

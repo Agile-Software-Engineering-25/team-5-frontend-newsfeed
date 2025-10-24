@@ -16,6 +16,8 @@ type ListParams = {
  * POST /newsfeed
  */
 export function createPost(body: NewsPostCreate) {
+  console.log('createPost:');
+  console.log(body);
   return apiClient.post<NewsPostRead>('/newsfeed', body);
 }
 
@@ -28,7 +30,8 @@ export async function listPosts(params?: ListParams) {
     query: params?.filter ? params?.filter : undefined,
     signal: params?.signal,
   });
-  console.log("Result" + result);
+  console.log('Result');
+  console.log(result);
   return result;
 }
 
@@ -41,6 +44,8 @@ export function updatePost(
   body: NewsPostUpdate,
   version?: number | string
 ) {
+  console.log('updatePost:');
+  console.log(body);
   return apiClient.put<NewsPostRead>(`/newsfeed/${id}`, body, {
     ifMatch: version, // apiClient sollte dies als "If-Match" Header setzen
   });
@@ -50,6 +55,8 @@ export function updatePost(
  * DELETE /newsfeed/{id}
  */
 export function deletePost(id: string) {
+  console.log('deletePost:');
+  console.log(id);
   return apiClient.del<void>(`/newsfeed/${id}`);
 }
 

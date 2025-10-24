@@ -87,7 +87,10 @@ const FilterBar: React.FC<FilterBarProps> = ({
   useEffect(() => {
     if (!pageSizeOpen) return;
     function handleClickOutside(e: MouseEvent) {
-      if (pageSizeRef.current && !pageSizeRef.current.contains(e.target as Node)) {
+      if (
+        pageSizeRef.current &&
+        !pageSizeRef.current.contains(e.target as Node)
+      ) {
         setPageSizeOpen(false);
       }
     }
@@ -103,12 +106,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
       .then((mod) => {
         if (!mounted) return;
         // mögliche Export-Namen abdecken
-        const Comp =
-          mod.SearchBar ||
-          mod.Search ||
-          mod.default?.SearchBar ||
-          mod.default?.Search ||
-          null;
+        const Comp = mod.SearchBar || mod.default?.SearchBar || null;
         if (Comp) setAgileSearch(() => Comp);
       })
       .catch(() => {
@@ -191,13 +189,19 @@ const FilterBar: React.FC<FilterBarProps> = ({
         borderRadius: 12,
         padding: 15,
         marginBottom: 16,
-        width: '1390px',      /* feste Breite */
-        margin: '0 auto',     /* zentrieren */
-        
+        width: '1390px' /* feste Breite */,
+        margin: '0 auto' /* zentrieren */,
       }}
     >
       {/* Zeile 1: Suche + Presets */}
-      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+      <div
+        style={{
+          display: 'flex',
+          gap: 12,
+          flexWrap: 'wrap',
+          alignItems: 'center',
+        }}
+      >
         {AgileSearch ? (
           <AgileSearch
             value={state.search}
@@ -244,11 +248,11 @@ const FilterBar: React.FC<FilterBarProps> = ({
               {state.datePreset === 'all'
                 ? 'Alle Daten'
                 : state.datePreset === '7d'
-                ? 'Letzte 7 Tage'
-                : state.datePreset === '30d'
-                ? 'Letzte 30 Tage'
-                : 'Benutzerdefiniert…'}
-             <span style={{ marginLeft: 8 }}>▾</span>
+                  ? 'Letzte 7 Tage'
+                  : state.datePreset === '30d'
+                    ? 'Letzte 30 Tage'
+                    : 'Benutzerdefiniert…'}
+              <span style={{ marginLeft: 8 }}>▾</span>
             </button>
             {dateOpen && (
               <div className={newPostStyles.dropdownList}>
@@ -336,7 +340,10 @@ const FilterBar: React.FC<FilterBarProps> = ({
           />
         </label>
 
-        <div ref={pageSizeRef} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div
+          ref={pageSizeRef}
+          style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+        >
           <label>pro Seite:</label>
           <div className={newPostStyles.customDropdown}>
             <button
@@ -345,7 +352,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
               onClick={() => setPageSizeOpen((o) => !o)}
             >
               {state.pageSize}
-             <span style={{ marginLeft: 8 }}>▾</span>
+              <span style={{ marginLeft: 8 }}>▾</span>
             </button>
             {pageSizeOpen && (
               <div className={newPostStyles.dropdownList}>
@@ -366,18 +373,10 @@ const FilterBar: React.FC<FilterBarProps> = ({
           </div>
         </div>
 
-        <JoyButton
-          onClick={prevPage}
-          disabled={state.page <= 1}
-
-        >
+        <JoyButton onClick={prevPage} disabled={state.page <= 1}>
           ← Zurück
         </JoyButton>
-        <JoyButton
-          onClick={nextPage}
-        >
-          Weiter →
-        </JoyButton>
+        <JoyButton onClick={nextPage}>Weiter →</JoyButton>
       </div>
 
       {/* Zeile 2: Aktive Filter-Chips */}
@@ -399,11 +398,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
               }}
             >
               {c.label}
-              <JoyButton
-                onClick={c.onRemove}
-                aria-label="Filter entfernen"
-
-              >
+              <JoyButton onClick={c.onRemove} aria-label="Filter entfernen">
                 ×
               </JoyButton>
             </span>

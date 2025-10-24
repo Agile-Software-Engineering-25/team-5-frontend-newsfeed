@@ -19,6 +19,9 @@ import type {
   NewsPostUpdate,
 } from '@/types/newsfeed';
 
+import useUser from '@/hooks/useUser';
+
+
 const role: 'admin' | 'user' | 'prof' = 'admin';
 
 const Newsfeed: React.FC = () => {
@@ -38,6 +41,11 @@ const Newsfeed: React.FC = () => {
   // Query-String aus der FilterBar -> wird 1:1 an die API gegeben
   const filterQuery = useMemo(() => buildQuery(filters), [filters]);
   //const filterQuery = undefined; // für den Anfang: kein Filter
+
+
+  //user Data
+  const user = useUser();
+
 
   // Backend-Load (ohne Frontend-Filterung)
   useEffect(() => {
@@ -79,9 +87,7 @@ const Newsfeed: React.FC = () => {
   const handleUpdate = useCallback(
     async ({ post }: { post: NewsPostUpdate }) => {
       try {
-        const current = posts.find((p) => p.id === post.id);
-        const version = current?.version;
-        const updated = await updatePost(post.id, post, version);
+        const updated = await updatePost(post.id, post);
         setPosts((prev) =>
           prev.map((p) => (p.id === updated.id ? updated : p))
         );
@@ -112,17 +118,12 @@ const Newsfeed: React.FC = () => {
         ? crypto.randomUUID()
         : `tmp-${Date.now()}`,
     title: '',
-    summary: '',
-    status: 'draft',
     content: { format: 'html', body: '' },
-    author: { user_id: 'current-user', name: 'Aktuell' },
+    author: { user_id: user.getUserId(), name: user.getFullName() },
     creation_date: new Date().toISOString(),
-    publish_date: null,
-    last_modified: null,
   };
 
   return (
-
     <div>
       <FilterBar
         initial={filters}

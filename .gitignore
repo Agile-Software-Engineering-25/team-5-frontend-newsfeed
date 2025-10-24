@@ -27,4 +27,4 @@ dist-ssr
 /cypress/downloads/*
 /cypress/videos/*
 
-shared-components/*
+

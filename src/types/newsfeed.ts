@@ -12,21 +12,11 @@ export interface Content {
   body: string; // required
 }
 
-export interface FeaturedImage {
-  url?: string; // format: uri
-  alt_text?: string;
-  caption?: string;
-}
 
 export interface Author {
   user_id: string; // required
   name: string; // required
   avatar_url?: Nullable<string>; // format: uri, nullable
-}
-
-export interface Expiration {
-  expires_at?: Nullable<ISODateTime>; // nullable
-  auto_archive?: Nullable<boolean>; // nullable
 }
 
 export interface PrincipalRef {
@@ -35,11 +25,7 @@ export interface PrincipalRef {
   name: string; // required
 }
 
-export interface PermissionsRWX {
-  read?: PrincipalRef[];
-  write?: PrincipalRef[];
-  delete?: PrincipalRef[];
-}
+export type PermissionsList = string[];
 
 export interface PermissionsFlags {
   update?: boolean;
@@ -55,43 +41,17 @@ export interface Settings {
 export interface NewsPostCreate {
   // required
   title: string;
-  summary: string;
-  status: PostStatus;
   content: Content;
   author: Author;
   creation_date: ISODateTime;
-
-  // optional
   id: string; // required for Create to identify the resource
-  featured_image?: FeaturedImage;
-  publish_date?: Nullable<ISODateTime>; // nullable
-  last_modified?: Nullable<ISODateTime>; // nullable
-  expiration?: Expiration;
-  permissions?: PermissionsRWX;
-  settings?: Settings;
+  permissions?: PermissionsList;
 }
 
 // Update = gleiche Struktur wie Create
 export type NewsPostUpdate = NewsPostCreate;
 
-export interface NewsPostRead {
-  // required
-  id: string;
-  version: number;
-  title: string;
-  summary: string;
-  status: PostStatus;
-  content: Content;
-  author: Author;
-  creation_date: ISODateTime;
-
-  // optional
-  featured_image?: FeaturedImage;
-  publish_date?: Nullable<ISODateTime>; // nullable
-  last_modified?: Nullable<ISODateTime>; // nullable
-  permissions?: PermissionsFlags;
-  settings?: Settings;
-}
+export type NewsPostRead = NewsPostCreate;
 
 export interface NewsPostHistoryItem {
   // required
@@ -106,7 +66,6 @@ export interface NewsPostHistoryItem {
 
   // optional
   slug?: string;
-  featured_image?: FeaturedImage;
   publish_date?: Nullable<ISODateTime>; // nullable
   last_modified?: Nullable<ISODateTime>; // nullable
   permissions?: PermissionsFlags;

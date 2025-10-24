@@ -1,5 +1,5 @@
 import { BrowserRouter } from 'react-router';
-import { THEME_ID as MATERIAL_THEME_ID} from '@mui/material';
+import { THEME_ID as MATERIAL_THEME_ID } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
 import { CssVarsProvider as JoyCssVarsProvider } from '@mui/joy';
 import './i18n';
