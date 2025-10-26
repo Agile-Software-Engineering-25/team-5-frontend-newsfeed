@@ -14,7 +14,9 @@ import {
 const joyTheme = createCustomJoyTheme();
 const muiTheme = createCustomMuiTheme();
 
-function App() {
+function App(props: { basename: string }) {
+  const { basename } = props;
+
   return (
     <Provider store={store}>
       <ThemeProvider theme={{ [MATERIAL_THEME_ID]: muiTheme }}>
@@ -24,7 +26,7 @@ function App() {
           modeStorageKey="joy-mode"
           colorSchemeStorageKey="joy-color-scheme"
         >
-          <BrowserRouter>
+          <BrowserRouter basename={basename}>
             <Newsfeed />
           </BrowserRouter>
         </JoyCssVarsProvider>

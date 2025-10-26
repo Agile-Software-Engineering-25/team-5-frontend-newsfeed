@@ -6,8 +6,7 @@ const container = document.getElementById('root');
 
 createRoot(container!).render(
   <StrictMode>
-    <App />
+    <App basename={import.meta.env.BASE_URL || '/'} />
   </StrictMode>
 );
 
-//basename={import.meta.env.BASE_URL || '/'}

@@ -12,7 +12,6 @@ export interface Content {
   body: string; // required
 }
 
-
 export interface Author {
   user_id: string; // required
   name: string; // required

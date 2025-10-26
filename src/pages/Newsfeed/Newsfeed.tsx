@@ -21,7 +21,6 @@ import type {
 
 import useUser from '@/hooks/useUser';
 
-
 const role: 'admin' | 'user' | 'prof' = 'admin';
 
 const Newsfeed: React.FC = () => {
@@ -42,10 +41,8 @@ const Newsfeed: React.FC = () => {
   const filterQuery = useMemo(() => buildQuery(filters), [filters]);
   //const filterQuery = undefined; // für den Anfang: kein Filter
 
-
   //user Data
   const user = useUser();
-
 
   // Backend-Load (ohne Frontend-Filterung)
   useEffect(() => {

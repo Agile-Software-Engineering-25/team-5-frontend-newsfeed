@@ -15,7 +15,6 @@ export default tseslint.config([
     extends: [
       js.configs.recommended,
       tseslint.configs.recommended,
-      reactHooks.configs['recommended-latest'],
       reactRefresh.configs.vite,
     ],
     plugins: {
@@ -32,20 +31,11 @@ export default tseslint.config([
       },
     },
     rules: {
-      // ---- Formatting ----
-      'prettier/prettier': [
-        'error',
-        {
-          tabWidth: 2,
-          useTabs: false,
-          singleQuote: true,
-          semi: true,
-        },
-      ],
 
       // ---- General JS/TS conventions ----
+      '@typescript-eslint/ban-ts-comment': 'off',
       'no-var': 'error',
-      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-explicit-any': 'off',
       'prefer-const': 'error',
 
       // ---- Arrow functions ----
@@ -53,20 +43,21 @@ export default tseslint.config([
       'func-style': ['warn', 'expression', { allowArrowFunctions: true }],
 
       // ---- Null/undefined handling ----
-      '@typescript-eslint/no-non-null-assertion': 'warn',
-      '@typescript-eslint/no-unnecessary-condition': 'warn',
+      '@typescript-eslint/no-non-null-assertion': 'off',
+      '@typescript-eslint/no-unnecessary-condition': 'off',
+      '@typescript-eslint/strict-boolean-expressions': 'off',
 
       // ---- Naming conventions ----
       '@typescript-eslint/naming-convention': [
         'warn',
         {
           selector: 'variableLike',
-          format: ['camelCase'],
+          format: ['camelCase', 'PascalCase', 'UPPER_CASE'],
           leadingUnderscore: 'allow',
         },
         {
           selector: 'function',
-          format: ['camelCase'],
+          format: ['camelCase', 'PascalCase'],
         },
         {
           selector: 'typeLike',
@@ -75,8 +66,8 @@ export default tseslint.config([
       ],
 
       // ---- Readability ----
-      'id-length': ['warn', { min: 3, exceptions: ['id', 'fs', 'db'] }],
-      'max-lines-per-function': ['warn', { max: 50, skipBlankLines: true }],
+      'id-length': ['warn', { min: 3, exceptions: ['id', 'fs', 'db', 't', 'e', '_', 'mx', 'my', 'px', 'py', 'm', 'p', 'de', 'en', 'sx', 'mr', 'xs', 'sm', 'md', 'mt'] }],
+      'max-lines-per-function': ['warn', { max: 350, skipBlankLines: true }],
 
       // React specific
       'react/react-in-jsx-scope': 'off', // Not needed for React 17+

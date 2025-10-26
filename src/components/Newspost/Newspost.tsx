@@ -70,7 +70,7 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
     body: '',
   };
   const authorName = post.author?.name ?? 'Unbekannt';
-  const dateIso = post.creation_date
+  const dateIso = post.creation_date;
 
   // Lokaler Zustand
   const [localTitle, setLocalTitle] = useState<string>(initialTitle);
