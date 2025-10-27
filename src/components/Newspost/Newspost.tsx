@@ -247,8 +247,29 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
   const isTitleValid = Boolean(localTitle.trim());
 
   return (
-    <article className={styles.card}>
-      <header className={styles.header}>
+   <article
+      style={{
+        width: '100%',
+        maxWidth: '1000px', /* gleiche Breite wie FilterBar / gewünschte Fixbreite */
+        minHeight: '340px',
+        margin: '35px auto',
+        padding: '30px',
+        background: '#e3edf9',
+        borderRadius: '12px',
+        overflow: 'hidden',
+        color: '#1a1a1a',
+        display: 'flex',
+        flexDirection: 'column',
+        transition: 'transform 0.25s ease, box-shadow 0.25s ease',
+      }}
+    >
+      <header style={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-evenly',
+        padding: '16px 16px 24px 24px',
+        borderBottom: '1px solid rgba(0, 0, 0, 0.08)',
+      }}>
         {postView === 'edit' || postView === 'add' ? (
           <>
             <input
