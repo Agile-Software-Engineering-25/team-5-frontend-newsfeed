@@ -133,6 +133,11 @@ const Newsfeed: React.FC = () => {
         <pre>{JSON.stringify(posts, null, 2)}</pre>
       </div>
 
+      <div>
+        {/* Falls du die Posts als JSON sehen willst: */}
+        <pre>{user.getFullName()}</pre>
+      </div>
+
       <div
         style={{
           fontFamily: 'monospace',

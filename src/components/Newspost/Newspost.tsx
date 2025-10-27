@@ -5,7 +5,6 @@ import React, {
   useRef,
   useEffect,
 } from 'react';
-import styles from './Newspost.module.css';
 import { Button as JoyButton, Checkbox as JoyCheckbox } from '@mui/joy';
 
 // Falls ihr Next.js nutzt, ReactQuill dynamisch importieren.
@@ -54,15 +53,15 @@ interface NewsPostCardProps {
 const departmentOptions = ['Alle', 'F1', 'F2', 'F3', 'F4'];
 
 const NewsPostCard: React.FC<NewsPostCardProps> = ({
-  post,
-  postViewProp = 'show',
-  department = 'Alle',
-  maintain,
-  onChange,
-  onSave,
-  onCancel,
-  onRemove,
-}) => {
+                                                     post,
+                                                     postViewProp = 'show',
+                                                     department = 'Alle',
+                                                     maintain,
+                                                     onChange,
+                                                     onSave,
+                                                     onCancel,
+                                                     onRemove,
+                                                   }) => {
   // Initialwerte aus dem Post ableiten
   const initialTitle = post.title ?? '';
   const initialContent: NewsContent = post.content ?? {
@@ -247,10 +246,10 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
   const isTitleValid = Boolean(localTitle.trim());
 
   return (
-   <article
+    <article
       style={{
         width: '100%',
-        maxWidth: '1000px', /* gleiche Breite wie FilterBar / gewünschte Fixbreite */
+        maxWidth: '1000px',
         minHeight: '340px',
         margin: '35px auto',
         padding: '30px',
@@ -263,30 +262,62 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
         transition: 'transform 0.25s ease, box-shadow 0.25s ease',
       }}
     >
-      <header style={{
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-evenly',
-        padding: '16px 16px 24px 24px',
-        borderBottom: '1px solid rgba(0, 0, 0, 0.08)',
-      }}>
+      <header
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-evenly',
+          padding: '16px 16px 24px 24px',
+          borderBottom: '1px solid rgba(0, 0, 0, 0.08)',
+        }}
+      >
         {postView === 'edit' || postView === 'add' ? (
           <>
             <input
-              className={styles.titleInput}
+              /* .titleInput */
+              style={{
+                width: 'calc(100% - 8px)',
+                boxSizing: 'border-box',
+                fontSize: '24px',
+                fontWeight: 700,
+                border: '1px solid #ddd',
+                borderRadius: '6px',
+                padding: '6px 13px',
+                outline: 'none',
+                marginLeft: '4px',
+                marginRight: '4px',
+              }}
               type="text"
               placeholder="Titel eingeben…"
               value={localTitle}
               onChange={handleTitleChange}
             />
-            <div className={styles.meta}>
-              <span className={styles.author}>Von {authorName}</span>
-              <div className={styles.dropdownWrap}>
+            <div
+              /* .meta */
+              style={{
+                display: 'flex',
+                gap: '24px',
+                fontSize: '16px',
+                color: 'rgba(0, 0, 0, 0.55)',
+                marginTop: '8px',
+                alignItems: 'center',
+              }}
+            >
+              <span /* .author */ style={{ fontStyle: 'italic' }}>
+                Von {authorName}
+              </span>
+              <div
+                /* .dropdownWrap */
+                style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+              >
                 <label>Fachbereich:&nbsp;</label>
-                <div className={styles.customDropdown} ref={dropdownRef}>
+                <div
+                  /* .customDropdown */
+                  style={{ position: 'relative', minWidth: '180px' }}
+                  ref={dropdownRef}
+                >
                   <JoyButton
                     type="button"
-                    className={styles.dropdownBtn}
                     variant="outlined"
                     size="sm"
                     color="neutral"
@@ -297,21 +328,60 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
                       borderRadius: '6px',
                       minWidth: '40px',
                     }}
+                    style={{
+                      width: '100%',
+                      background:
+                        'linear-gradient(180deg, #ffffff 0%, #fbfdff 100%)',
+                      border: '1px solid rgba(16,24,40,0.08)',
+                      borderRadius: '6px',
+                      padding: '8px 12px',
+                      fontSize: '14px',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      transition:
+                        'background 0.12s, border-color 0.12s, box-shadow 0.12s',
+                      boxShadow: 'none',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}
                   >
                     {localDepartment.length > 0
                       ? localDepartment.join(', ')
                       : 'Alle auswählen'}
                   </JoyButton>
                   {dropdownOpen && (
-                    <div className={styles.dropdownList}>
+                    <div
+                      /* .dropdownList */
+                      style={{
+                        position: 'absolute',
+                        top: '110%',
+                        left: 0,
+                        width: '100%',
+                        background: '#fff',
+                        borderRadius: '6px',
+                        boxShadow: '0 6px 30px rgba(16,24,40,0.08)',
+                        padding: '8px 8px',
+                        zIndex: 10,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '6px',
+                        minWidth: '180px',
+                        border: '1px solid rgba(16,24,40,0.04)',
+                      }}
+                    >
                       {departmentOptions.map((option) => (
                         <label
                           key={option}
-                          className={styles.dropdownItem}
+                          /* .dropdownItem */
                           style={{
                             display: 'flex',
                             alignItems: 'center',
                             gap: 8,
+                            fontSize: '14px',
+                            padding: '8px 6px',
+                            borderRadius: '6px',
+                            transition: 'background 0.12s, color 0.12s',
                           }}
                         >
                           <JoyCheckbox
@@ -325,20 +395,34 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
                   )}
                 </div>
               </div>
-              <span className={styles.date}>
+              <span /* .date */ style={{ fontWeight: 'bold' }}>
                 {formatDate(dateIso || new Date().toISOString())}
               </span>
             </div>
           </>
         ) : (
           <>
-            <h2 className={styles.title}>{localTitle || '(ohne Titel)'}</h2>
-            <div className={styles.meta}>
-              <span className={styles.author}>Von {authorName}</span>
-              <span className={styles.date}>
+            <h2 /* .title (keine Styles definiert) */>
+              {localTitle || '(ohne Titel)'}
+            </h2>
+            <div
+              /* .meta */
+              style={{
+                display: 'flex',
+                gap: '24px',
+                fontSize: '16px',
+                color: 'rgba(0, 0, 0, 0.55)',
+                marginTop: '8px',
+                alignItems: 'center',
+              }}
+            >
+              <span /* .author */ style={{ fontStyle: 'italic' }}>
+                Von {authorName}
+              </span>
+              <span /* .date */ style={{ fontWeight: 'bold' }}>
                 {formatDate(dateIso || new Date().toISOString())}
               </span>
-              <span className={styles.department}>
+              <span /* .department (keine eigenen Styles) */>
                 Fachbereich: {localDepartment.join(', ')}
               </span>
             </div>
@@ -350,10 +434,27 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
         <>
           {/* Anzeige: Quill-HTML sicher rendern */}
           <div
-            className={styles.body}
+            /* .body */
+            style={{
+              padding: '32px',
+              fontSize: '18px',
+              lineHeight: '32px',
+              color: '#333',
+            }}
             dangerouslySetInnerHTML={{ __html: safeHtml }}
           />
-          <div className={styles.actions}>
+          <div
+            /* .actions */
+            style={{
+              display: 'flex',
+              gap: '12px',
+              justifyContent: 'flex-end',
+              marginTop: '20px',
+              marginBottom: '16px',
+              paddingRight: '24px',
+              paddingBottom: '16px',
+            }}
+          >
             {maintain && (
               <>
                 <JoyButton onClick={() => setPostView('edit')}>
@@ -366,10 +467,12 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
         </>
       ) : postView === 'add' ? (
         <>
-          <div className={styles.editorWrap}>
+          <div
+            /* .editorWrap */
+            style={{ marginTop: '24px', backgroundColor: '#fff', borderRadius: 6 }}
+          >
             {/* Wir editieren in HTML (Quill) */}
             <ReactQuill
-              className={styles.quill}
               theme="snow"
               modules={quillModules}
               formats={quillFormats}
@@ -379,14 +482,23 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
           </div>
 
           {(onSave || onCancel) && (
-            <div className={styles.actions}>
+            <div
+              /* .actions */
+              style={{
+                display: 'flex',
+                gap: '12px',
+                justifyContent: 'flex-end',
+                marginTop: '20px',
+                marginBottom: '16px',
+                paddingRight: '24px',
+                paddingBottom: '16px',
+              }}
+            >
               {onSave && (
                 <JoyButton
                   onClick={handleSave}
                   disabled={!isTitleValid}
-                  title={
-                    isTitleValid ? 'Speichern' : 'Titel darf nicht leer sein'
-                  }
+                  title={isTitleValid ? 'Speichern' : 'Titel darf nicht leer sein'}
                 >
                   Speichern
                 </JoyButton>
@@ -396,10 +508,12 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
         </>
       ) : (
         <>
-          <div className={styles.editorWrap}>
+          <div
+            /* .editorWrap */
+            style={{ marginTop: '24px', backgroundColor: '#fff', borderRadius: 6 }}
+          >
             {/* Wir editieren in HTML (Quill) */}
             <ReactQuill
-              className={styles.quill}
               theme="snow"
               modules={quillModules}
               formats={quillFormats}
@@ -409,14 +523,23 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
           </div>
 
           {(onSave || onCancel) && (
-            <div className={styles.actions}>
+            <div
+              /* .actions */
+              style={{
+                display: 'flex',
+                gap: '12px',
+                justifyContent: 'flex-end',
+                marginTop: '20px',
+                marginBottom: '16px',
+                paddingRight: '24px',
+                paddingBottom: '16px',
+              }}
+            >
               {onSave && (
                 <JoyButton
                   onClick={handleEdit}
                   disabled={!isTitleValid}
-                  title={
-                    isTitleValid ? 'Speichern' : 'Titel darf nicht leer sein'
-                  }
+                  title={isTitleValid ? 'Speichern' : 'Titel darf nicht leer sein'}
                 >
                   Speichern
                 </JoyButton>
