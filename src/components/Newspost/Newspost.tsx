@@ -246,7 +246,18 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
 
   return (
     <>
-      <style>{snowCss}</style>
+      <style>{snowCss}
+
+        {`
+      .ql-editor {
+        min-height: 180px;
+        padding: 12px;
+        line-height: 1.6;
+        font-size: 16px;
+        
+      }
+    `}
+      </style>
 
     <article
       style={{
@@ -269,7 +280,7 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-evenly',
-          padding: '16px 16px 24px 24px',
+          padding: '16px 0px 24px 0px',
           borderBottom: '1px solid rgba(0, 0, 0, 0.08)',
         }}
       >
@@ -278,7 +289,7 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
             <input
               /* .titleInput */
               style={{
-                width: 'calc(100% - 8px)',
+                width: '100%',
                 boxSizing: 'border-box',
                 fontSize: '24px',
                 fontWeight: 700,
@@ -286,8 +297,6 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
                 borderRadius: '6px',
                 padding: '6px 13px',
                 outline: 'none',
-                marginLeft: '4px',
-                marginRight: '4px',
               }}
               type="text"
               placeholder="Titel eingeben…"

@@ -117,7 +117,8 @@ const Newsfeed: React.FC = () => {
     title: '',
     content: { format: 'html', body: '' },
     author: { user_id: user.getUserId(), name: user.getFullName() },
-    creation_date: new Date().toISOString(),
+    creation_date: new Date().toISOString(), permissions: ["student"]
+
   };
 
   return (
