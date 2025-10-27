@@ -11,6 +11,8 @@ import { Button as JoyButton, Checkbox as JoyCheckbox } from '@mui/joy';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
+import 'react-quill/dist/quill.snow.css';
+
 import DOMPurify from 'dompurify';
 import type {
   NewsPostCreate,
@@ -247,26 +249,7 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
 
   return (
     <>
-      <style>
-        {`
-      /* Quill Basis zurück auf normales UI-Niveau */
-      .ql-toolbar, .ql-container { font-size: 14px; }
-      .ql-toolbar .ql-formats select,
-      .ql-toolbar .ql-picker { font-size: 14px; }
 
-      /* Falls ein globales svg-Override existiert */
-      .ql-toolbar svg { width: 18px; height: 18px; }
-
-      /* Native <select> im Toolbar normalisieren */
-      .ql-toolbar select.ql-size,
-      .ql-toolbar select.ql-align {
-        font-size: 14px; height: auto; line-height: 1.2; padding: 0 4px;
-      }
-
-      /* Quill Editor Mindesthöhe wie bei dir */
-      .quill .ql-editor { min-height: 180px; padding: 12px; }
-    `}
-      </style>
 
     <article
       style={{
@@ -495,7 +478,6 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
           >
             {/* Wir editieren in HTML (Quill) */}
             <ReactQuill
-              className="quill"
               theme="snow"
               modules={quillModules}
               formats={quillFormats}
@@ -537,7 +519,6 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
           >
             {/* Wir editieren in HTML (Quill) */}
             <ReactQuill
-              className="quill"
               theme="snow"
               modules={quillModules}
               formats={quillFormats}
