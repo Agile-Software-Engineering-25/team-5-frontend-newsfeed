@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { Button as JoyButton } from '@mui/joy';
-import newPostStyles from '../Newspost/Newspost.module.css';
 
 export type DatePreset = 'all' | '7d' | '30d' | 'custom';
 
@@ -59,10 +58,10 @@ const defaultState: FilterState = {
 };
 
 const FilterBar: React.FC<FilterBarProps> = ({
-  initial,
-  onChange,
-  pageSizeOptions = [6, 20, 50],
-}) => {
+                                               initial,
+                                               onChange,
+                                               pageSizeOptions = [6, 20, 50],
+                                             }) => {
   const [state, setState] = useState<FilterState>({
     ...defaultState,
     ...initial,
@@ -236,14 +235,32 @@ const FilterBar: React.FC<FilterBarProps> = ({
           />
         )}
 
-        {/* Datum: ersetzt durch dropdown styled wie Newspost */}
-        <div className={newPostStyles.dropdownWrap} ref={dateRef}>
+        {/* Datum: Dropdown (Inline-Styles statt CSS-Klassen) */}
+        <div
+          ref={dateRef}
+          style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+        >
           <label style={{ marginRight: 8 }}>Datum:</label>
-          <div className={newPostStyles.customDropdown}>
+          <div style={{ position: 'relative', minWidth: 180 }}>
             <button
               type="button"
-              className={newPostStyles.dropdownBtn}
               onClick={() => setDateOpen((o) => !o)}
+              style={{
+                width: '100%',
+                background: 'linear-gradient(180deg, #ffffff 0%, #fbfdff 100%)',
+                border: '1px solid rgba(16,24,40,0.08)',
+                borderRadius: 6,
+                padding: '8px 12px',
+                fontSize: 14,
+                cursor: 'pointer',
+                textAlign: 'left',
+                transition:
+                  'background 0.12s, border-color 0.12s, box-shadow 0.12s',
+                boxShadow: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
             >
               {state.datePreset === 'all'
                 ? 'Alle Daten'
@@ -255,39 +272,92 @@ const FilterBar: React.FC<FilterBarProps> = ({
               <span style={{ marginLeft: 8 }}>▾</span>
             </button>
             {dateOpen && (
-              <div className={newPostStyles.dropdownList}>
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '110%',
+                  left: 0,
+                  width: '100%',
+                  background: '#fff',
+                  borderRadius: 6,
+                  boxShadow: '0 6px 30px rgba(16,24,40,0.08)',
+                  padding: '8px 8px',
+                  zIndex: 10,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 6,
+                  minWidth: 180,
+                  border: '1px solid rgba(16,24,40,0.04)',
+                }}
+              >
                 <label
-                  className={newPostStyles.dropdownItem}
                   onClick={() => {
                     setPreset('all');
                     setDateOpen(false);
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    fontSize: 14,
+                    padding: '8px 6px',
+                    borderRadius: 6,
+                    transition: 'background 0.12s, color 0.12s',
+                    cursor: 'pointer',
                   }}
                 >
                   Alle Daten
                 </label>
                 <label
-                  className={newPostStyles.dropdownItem}
                   onClick={() => {
                     setPreset('7d');
                     setDateOpen(false);
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    fontSize: 14,
+                    padding: '8px 6px',
+                    borderRadius: 6,
+                    transition: 'background 0.12s, color 0.12s',
+                    cursor: 'pointer',
                   }}
                 >
                   Letzte 7 Tage
                 </label>
                 <label
-                  className={newPostStyles.dropdownItem}
                   onClick={() => {
                     setPreset('30d');
                     setDateOpen(false);
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    fontSize: 14,
+                    padding: '8px 6px',
+                    borderRadius: 6,
+                    transition: 'background 0.12s, color 0.12s',
+                    cursor: 'pointer',
                   }}
                 >
                   Letzte 30 Tage
                 </label>
                 <label
-                  className={newPostStyles.dropdownItem}
                   onClick={() => {
                     setPreset('custom');
                     setDateOpen(false);
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    fontSize: 14,
+                    padding: '8px 6px',
+                    borderRadius: 6,
+                    transition: 'background 0.12s, color 0.12s',
+                    cursor: 'pointer',
                   }}
                 >
                   Benutzerdefiniert…
@@ -322,7 +392,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
           </>
         )}
 
-        {/* Page Input bleibt, PageSize als Dropdown styled wie Newspost */}
+        {/* Page Input bleibt, PageSize als Dropdown (Inline-Styles statt CSS-Klassen) */}
         <label style={{ marginLeft: 'auto' }}>
           Seite:
           <input
@@ -345,24 +415,65 @@ const FilterBar: React.FC<FilterBarProps> = ({
           style={{ display: 'flex', alignItems: 'center', gap: 8 }}
         >
           <label>pro Seite:</label>
-          <div className={newPostStyles.customDropdown}>
+          <div style={{ position: 'relative', minWidth: 180 }}>
             <button
               type="button"
-              className={newPostStyles.dropdownBtn}
               onClick={() => setPageSizeOpen((o) => !o)}
+              style={{
+                width: '100%',
+                background: 'linear-gradient(180deg, #ffffff 0%, #fbfdff 100%)',
+                border: '1px solid rgba(16,24,40,0.08)',
+                borderRadius: 6,
+                padding: '8px 12px',
+                fontSize: 14,
+                cursor: 'pointer',
+                textAlign: 'left',
+                transition:
+                  'background 0.12s, border-color 0.12s, box-shadow 0.12s',
+                boxShadow: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
             >
               {state.pageSize}
               <span style={{ marginLeft: 8 }}>▾</span>
             </button>
             {pageSizeOpen && (
-              <div className={newPostStyles.dropdownList}>
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '110%',
+                  left: 0,
+                  width: '100%',
+                  background: '#fff',
+                  borderRadius: 6,
+                  boxShadow: '0 6px 30px rgba(16,24,40,0.08)',
+                  padding: '8px 8px',
+                  zIndex: 10,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 6,
+                  minWidth: 180,
+                  border: '1px solid rgba(16,24,40,0.04)',
+                }}
+              >
                 {pageSizeOptions.map((n) => (
                   <label
                     key={n}
-                    className={newPostStyles.dropdownItem}
                     onClick={() => {
                       setPageSize(n);
                       setPageSizeOpen(false);
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      fontSize: 14,
+                      padding: '8px 6px',
+                      borderRadius: 6,
+                      transition: 'background 0.12s, color 0.12s',
+                      cursor: 'pointer',
                     }}
                   >
                     {n}
