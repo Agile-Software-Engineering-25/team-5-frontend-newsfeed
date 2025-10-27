@@ -11,7 +11,7 @@ import { Button as JoyButton, Checkbox as JoyCheckbox } from '@mui/joy';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
-import 'react-quill/dist/quill.snow.css';
+import snowCss from 'react-quill/dist/quill.snow.css?inline';
 
 import DOMPurify from 'dompurify';
 import type {
@@ -249,7 +249,7 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
 
   return (
     <>
-
+      <style>{snowCss}</style>
 
     <article
       style={{
