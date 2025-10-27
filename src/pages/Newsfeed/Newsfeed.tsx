@@ -127,28 +127,6 @@ const Newsfeed: React.FC = () => {
         onChange={setFilters}
         pageSizeOptions={[10, 20, 50]}
       />
-
-      <div>
-        {/* Falls du die Posts als JSON sehen willst: */}
-        <pre>{JSON.stringify(posts, null, 2)}</pre>
-      </div>
-
-      <div>
-        {/* Falls du die Posts als JSON sehen willst: */}
-        <pre>{user.getFullName()}</pre>
-      </div>
-
-      <div
-        style={{
-          fontFamily: 'monospace',
-          fontSize: 12,
-          color: '#555',
-          margin: '8px 0 16px',
-        }}
-      >
-        ?{filterQuery}
-      </div>
-
       {loading && <div>Wird geladen…</div>}
       {error && <div style={{ color: 'crimson' }}>Fehler: {error}</div>}
 

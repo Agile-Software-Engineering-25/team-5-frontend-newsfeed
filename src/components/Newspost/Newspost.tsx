@@ -7,10 +7,7 @@ import React, {
 } from 'react';
 import { Button as JoyButton, Checkbox as JoyCheckbox } from '@mui/joy';
 
-// Falls ihr Next.js nutzt, ReactQuill dynamisch importieren.
 import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
-
 import snowCss from 'react-quill/dist/quill.snow.css?inline';
 
 import DOMPurify from 'dompurify';
@@ -478,6 +475,10 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
           >
             {/* Wir editieren in HTML (Quill) */}
             <ReactQuill
+              style={{
+                minHeight: '180px', /* <- Eingabefeld-Mindesthöhe */
+                padding: '12px',
+              }}
               theme="snow"
               modules={quillModules}
               formats={quillFormats}
@@ -519,6 +520,10 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
           >
             {/* Wir editieren in HTML (Quill) */}
             <ReactQuill
+             style={{
+               minHeight: '180px', /* <- Eingabefeld-Mindesthöhe */
+               padding: '12px',
+             }}
               theme="snow"
               modules={quillModules}
               formats={quillFormats}
