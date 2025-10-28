@@ -18,7 +18,7 @@ type ListParams = {
 export function createPost(body: NewsPostCreate) {
   console.log('createPost:');
   console.log(body);
-  return apiClient.post<NewsPostRead>('/newsfeed', body);
+  return apiClient.post<NewsPostRead>('/api/newsfeed', body);
 }
 
 /**
@@ -26,7 +26,7 @@ export function createPost(body: NewsPostCreate) {
  * Optional: ?filter=...
  */
 export async function listPosts(params?: ListParams) {
-  const result = await apiClient.get<NewsPostRead[]>('/newsfeed', {
+  const result = await apiClient.get<NewsPostRead[]>('/api/newsfeed', {
     query: params?.filter ? params?.filter : undefined,
     signal: params?.signal,
   });
@@ -46,7 +46,7 @@ export function updatePost(
 ) {
   console.log('updatePost:');
   console.log(body);
-  return apiClient.put<NewsPostRead>(`/newsfeed/${id}`, body, {
+  return apiClient.put<NewsPostRead>(`/api/newsfeed/${id}`, body, {
     ifMatch: version, // apiClient sollte dies als "If-Match" Header setzen
   });
 }
@@ -57,14 +57,14 @@ export function updatePost(
 export function deletePost(id: string) {
   console.log('deletePost:');
   console.log(id);
-  return apiClient.del<void>(`/newsfeed/${id}`);
+  return apiClient.del<void>(`/api/newsfeed/${id}`);
 }
 
 /**
  * GET /newsfeed/{id}/history
  */
 export function getHistory(id: string, signal?: AbortSignal) {
-  return apiClient.get<NewsPostHistoryItem[]>(`/newsfeed/${id}/history`, {
+  return apiClient.get<NewsPostHistoryItem[]>(`/api/newsfeed/${id}/history`, {
     signal,
   });
 }
