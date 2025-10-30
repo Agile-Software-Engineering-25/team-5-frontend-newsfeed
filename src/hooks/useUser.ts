@@ -59,7 +59,6 @@ export const useUser = () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const decoded: any = jwtDecode(token);
     const roles: string[] = decoded?.realm_access?.roles || [];
-    console.log(roles)
 
 
     if (!Array.isArray(roles) || roles.length === 0) return false;
