@@ -60,11 +60,10 @@ export const useUser = () => {
     const decoded: any = jwtDecode(token);
     const roles: string[] = decoded?.realm_access?.roles || [];
     console.log(roles)
-    const groups: string[] = decoded?.realm_access?.groups || [];
-    console.log(groups)
 
 
     if (!Array.isArray(roles) || roles.length === 0) return false;
+    console.log(roles.includes("sau-admin"))
     return roles.includes(role);
   };
 
