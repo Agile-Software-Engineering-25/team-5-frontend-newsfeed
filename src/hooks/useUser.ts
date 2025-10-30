@@ -64,6 +64,17 @@ export const useUser = () => {
     return roles.includes(role);
   };
 
+  const getRoles = (): string[] => {
+    const token = getAccessToken();
+    if (!token) return [];
+
+    // Decode JWT to extract roles
+    const decoded: any = jwtDecode(token);
+    const roles: string[] = decoded?.realm_access?.roles || [];
+    if (!Array.isArray(roles) || roles.length === 0) return [];
+    return roles;
+  }
+
   return {
     user,
     getUserId,
@@ -73,6 +84,7 @@ export const useUser = () => {
     getEmail,
     getAccessToken,
     hasRole,
+    getRoles
   };
 };
 
