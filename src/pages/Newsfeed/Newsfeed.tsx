@@ -45,6 +45,9 @@ const Newsfeed: React.FC = () => {
   // Backend-Load (ohne Frontend-Filterung)
   useEffect(() => {
     const ac = new AbortController();
+    // Guard: warte bis user initialisiert ist (z.B. user id oder anderes Erkennungsmerkmal)
+    if (!user || !user.getUserId()) return;
+
     (async () => {
       setLoading(true);
       setError(null);
@@ -63,8 +66,7 @@ const Newsfeed: React.FC = () => {
       }
     })();
     return () => ac.abort();
-  }, [filterQuery]);
-
+  }, [filterQuery, user]);
   // Create / Update / Delete via API
   const handleCreate = useCallback(
     async ({ post }: { post: NewsPostCreate }) => {
@@ -130,7 +132,7 @@ const Newsfeed: React.FC = () => {
       {loading && <div>Wird geladen…</div>}
       {error && <div style={{ color: 'crimson' }}>Fehler: {error}</div>}
 
-      {useUser().hasRole("sau-admin") && (
+      {user.hasRole("sau-admin") && (
         <NewsPostCard
           post={newPostDraft}
           postViewProp="add"
@@ -141,12 +143,11 @@ const Newsfeed: React.FC = () => {
         />
       )}
 
-      {/* Keine Frontend-Filterung/Pagination: genau das rendern, was vom Backend kommt */}
       {posts.map((p) => (
         <NewsPostCard
           key={p.id}
           post={p}
-          maintain={useUser().hasRole("sau-admin")}
+          maintain={user.hasRole("sau-admin")}
           onChange={handleChange}
           onSave={handleUpdate}
           onRemove={handleRemove}
