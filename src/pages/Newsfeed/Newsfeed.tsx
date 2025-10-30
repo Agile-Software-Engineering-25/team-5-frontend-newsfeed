@@ -126,13 +126,6 @@ const Newsfeed: React.FC = () => {
       {loading && <div>Wird geladen…</div>}
       {error && <div style={{ color: 'crimson' }}>Fehler: {error}</div>}
 
-
-      <div>{user.getFullName()}</div>
-      <div>{user.getRoles()}</div>
-      <div>{user.hasRole("sau-admin")}</div>
-
-
-
       {user.hasRole("sau-admin") && (
         <NewsPostCard
           post={newPostDraft}
