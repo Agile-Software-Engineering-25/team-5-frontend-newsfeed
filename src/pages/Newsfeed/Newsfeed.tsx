@@ -126,8 +126,12 @@ const Newsfeed: React.FC = () => {
       {loading && <div>Wird geladen…</div>}
       {error && <div style={{ color: 'crimson' }}>Fehler: {error}</div>}
 
-      <div>sau-admin: {user.hasRole("sau-admin")}</div>
-      <div>admin: {user.hasRole("admin")}</div>
+
+      <div>User:{user.getFullName()}  </div>
+      <div>hasRole("sau-admin") {user.hasRole("sau-admin")}</div>
+      <div>hasRole("admin") {user.hasRole("admin")}</div>
+      <div>hasRole("university-administrative-staff") {user.hasRole("university-administrative-staff")}</div>
+
 
 
       {user.hasRole("admin") && (
