@@ -27,6 +27,7 @@ function App(props: { basename: string }) {
     setDynamicHeadersProvider(() => {
       const h: Record<string, string> = {};
       if (token) h.Authorization = `Bearer ${token}`;
+      console.log("Tokennnnn"+ token)
       return h;
     });
   }, [token]);
