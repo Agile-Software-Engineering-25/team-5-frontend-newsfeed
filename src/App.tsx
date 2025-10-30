@@ -11,11 +11,25 @@ import {
   createCustomMuiTheme,
 } from '@agile-software/shared-components';
 
+import useUser from '@/hooks/useUser';
+import { setDynamicHeadersProvider } from '@/services/apiClient';
+import { useEffect } from 'react';
+
 const joyTheme = createCustomJoyTheme();
 const muiTheme = createCustomMuiTheme();
 
 function App(props: { basename: string }) {
   const { basename } = props;
+  const user = useUser();
+  const token = user.getAccessToken();
+
+  useEffect(() => {
+    setDynamicHeadersProvider(() => {
+      const h: Record<string, string> = {};
+      if (token) h.Authorization = `Bearer ${token}`;
+      return h;
+    });
+  }, [token]);
 
   return (
     <Provider store={store}>

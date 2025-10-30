@@ -2,9 +2,11 @@
 const BASE_URL = 'http://localhost:8080';
 //const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'https://sau-portal.de/api/newsfeed';
 
-import useUser from '@/hooks/useUser';
+let dynamicHeadersProvider: () => Record<string, string> = () => ({});
 
-
+export function setDynamicHeadersProvider(fn: () => Record<string, string>) {
+    dynamicHeadersProvider = fn;
+}
 
 
 type RequestOpts = {
@@ -26,18 +28,16 @@ async function request<T>(
   opts: RequestOpts = {}
 ): Promise<T> {
   const url = new URL(withQuery(path, opts.query), BASE_URL).toString();
-    const user = useUser();
-    const token = user.getAccessToken();
 
-  const headers: Record<string, string> = {
+const headers: Record<string, string> = {
     Accept: 'application/json',
     ...(opts.body && !(opts.body instanceof FormData)
-      ? { 'Content-Type': 'application/json' }
-      : {}),
+        ? { 'Content-Type': 'application/json' }
+        : {}),
     ...(opts.ifMatch !== undefined ? { 'If-Match': String(opts.ifMatch) } : {}),
     ...(opts.headers ?? {}),
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
+    ...dynamicHeadersProvider(), // <--- neu
+};
 
   const res = await fetch(url, {
     method,
