@@ -32,17 +32,17 @@ const Newsfeed: React.FC = () => {
 
   // Query-String aus der FilterBar -> wird 1:1 an die API gegeben
   const filterQuery = useMemo(() => buildQuery(filters), [filters]);
+  //const filterQuery = undefined; // für den Anfang: kein Filter
 
-  // user Data
+  //user Data
   const user = useUser();
   const token = user.getAccessToken();
 
-  // Newsfeed-API (Hook)
   const { listPosts, createPost, updatePost, deletePost } = useNewsfeed();
 
   // Backend-Load (ohne Frontend-Filterung)
   useEffect(() => {
-    if (!token) return; // warten bis Token verfügbar
+    if (!token) return; // <<— Warten bis Token verfügbar
     const ac = new AbortController();
     (async () => {
       setLoading(true);
@@ -60,50 +60,50 @@ const Newsfeed: React.FC = () => {
       }
     })();
     return () => ac.abort();
-  }, [filterQuery, token, listPosts]);
+  }, [filterQuery, token]);
 
   // Create / Update / Delete via API
   const handleCreate = useCallback(
     async ({ post }: { post: NewsPostCreate }) => {
       try {
         const created = await createPost(post);
+        // Optional: direkt oben einfügen – oder einfach Reload durch Filteränderung triggern
         setPosts((prev) => [created, ...prev]);
       } catch (e) {
         alert((e as Error).message);
       }
     },
-    [createPost]
+    []
   );
 
   const handleUpdate = useCallback(
     async ({ post }: { post: NewsPostUpdate }) => {
       try {
         const updated = await updatePost(post.id, post);
-        setPosts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+        setPosts((prev) =>
+          prev.map((p) => (p.id === updated.id ? updated : p))
+        );
       } catch (e) {
         alert((e as Error).message);
       }
     },
-    [updatePost]
+    [posts]
   );
 
-  const handleRemove = useCallback(
-    async ({ id }: { id: string }) => {
-      try {
-        await deletePost(id);
-        setPosts((prev) => prev.filter((p) => p.id !== id));
-      } catch (e) {
-        alert((e as Error).message);
-      }
-    },
-    [deletePost]
-  );
+  const handleRemove = useCallback(async ({ id }: { id: string }) => {
+    try {
+      await deletePost(id);
+      setPosts((prev) => prev.filter((p) => p.id !== id));
+    } catch (e) {
+      alert((e as Error).message);
+    }
+  }, []);
 
   const handleChange = () => {
-    // no-op
+    // no-op: aktuell nicht benötigt
   };
 
-  // Draft für neuen Post
+  // Draft für neuen Post (Create erfordert id laut Schema)
   const newPostDraft: NewsPostCreate = {
     id:
       typeof crypto !== 'undefined' && 'randomUUID' in crypto
@@ -113,7 +113,8 @@ const Newsfeed: React.FC = () => {
     content: { format: 'html', body: '' },
     author: { user_id: user.getUserId(), name: user.getFullName() },
     creation_date: new Date().toISOString(),
-    permissions: ['sau-admin', 'university-administrative-staff'],
+      permissions: ["sau-admin", "university-administrative-staff"]
+
   };
 
   return (
@@ -126,7 +127,7 @@ const Newsfeed: React.FC = () => {
       {loading && <div>Wird geladen…</div>}
       {error && <div style={{ color: 'crimson' }}>Fehler: {error}</div>}
 
-      {user.hasRole('admin') && (
+      {user.hasRole("admin") && (
         <NewsPostCard
           post={newPostDraft}
           postViewProp="add"
@@ -137,11 +138,12 @@ const Newsfeed: React.FC = () => {
         />
       )}
 
+      {/* Keine Frontend-Filterung/Pagination: genau das rendern, was vom Backend kommt */}
       {posts.map((p) => (
         <NewsPostCard
           key={p.id}
           post={p}
-          maintain={user.hasRole('sau-admin')}
+          maintain={user.hasRole("sau-admin")}
           onChange={handleChange}
           onSave={handleUpdate}
           onRemove={handleRemove}

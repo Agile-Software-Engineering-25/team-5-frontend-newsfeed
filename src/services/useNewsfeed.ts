@@ -1,38 +1,25 @@
-import useApi from '../hooks/useApi';
-import type {
-  NewsPostCreate,
-  NewsPostUpdate,
-  NewsPostRead,
-  NewsPostHistoryItem,
-} from '@/types/newsfeed';
-
-type ListParams = { filter?: string; signal?: AbortSignal };
+// services/useNewsfeed.ts
+import { useCallback } from 'react';
+import useApiClient from '../hooks/useApi.ts';
+import type { NewsPostCreate, NewsPostUpdate, NewsPostRead, NewsPostHistoryItem } from '@/types/newsfeed';
 
 export default function useNewsfeed() {
-  const api = useApi();
+  const api = useApiClient();
 
-  return {
-    createPost(body: NewsPostCreate) {
-      return api.post<NewsPostRead>('/api/newsfeed', body);
-    },
-    listPosts(params?: ListParams) {
-      return api.get<NewsPostRead[]>('/api/newsfeed', {
-        query: params?.filter,
-        signal: params?.signal,
-      });
-    },
-    updatePost(id: string, body: NewsPostUpdate, version?: number | string) {
-      return api.put<NewsPostRead>(`/api/newsfeed/${id}`, body, {
-        ifMatch: version,
-      });
-    },
-    deletePost(id: string) {
-      return api.del<void>(`/api/newsfeed/${id}`);
-    },
-    getHistory(id: string, signal?: AbortSignal) {
-      return api.get<NewsPostHistoryItem[]>(`/api/newsfeed/${id}/history`, {
-        signal,
-      });
-    },
-  };
+  const createPost = useCallback((body: NewsPostCreate) =>
+    api.post<NewsPostRead>('/api/newsfeed', body), [api]);
+
+  const listPosts = useCallback((params?: { filter?: string; signal?: AbortSignal; }) =>
+    api.get<NewsPostRead[]>('/api/newsfeed', { query: params?.filter, signal: params?.signal }), [api]);
+
+  const updatePost = useCallback((id: string, body: NewsPostUpdate, version?: number | string) =>
+    api.put<NewsPostRead>(`/api/newsfeed/${id}`, body, { ifMatch: version }), [api]);
+
+  const deletePost = useCallback((id: string) =>
+    api.del<void>(`/api/newsfeed/${id}`), [api]);
+
+  const getHistory = useCallback((id: string, signal?: AbortSignal) =>
+    api.get<NewsPostHistoryItem[]>(`/api/newsfeed/${id}/history`, { signal }), [api]);
+
+  return { createPost, listPosts, updatePost, deletePost, getHistory };
 }
