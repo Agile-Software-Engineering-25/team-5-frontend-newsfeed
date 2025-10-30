@@ -116,6 +116,7 @@ const Newsfeed: React.FC = () => {
 
   };
 
+  // @ts-ignore
   return (
     <div>
       <FilterBar
@@ -127,7 +128,7 @@ const Newsfeed: React.FC = () => {
       {error && <div style={{ color: 'crimson' }}>Fehler: {error}</div>}
 
 
-      <div>User:{user.getFullName()}  </div>
+      <div>{user.user}</div>
       <div>hasRole("sau-admin") {user.hasRole("sau-admin")}</div>
       <div>hasRole("admin") {user.hasRole("admin")}</div>
       <div>hasRole("university-administrative-staff") {user.hasRole("university-administrative-staff")}</div>
