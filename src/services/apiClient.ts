@@ -2,6 +2,10 @@
 const BASE_URL = 'http://localhost:8080';
 //const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'https://sau-portal.de/api/newsfeed';
 
+import useUser from '@/hooks/useUser';
+
+
+
 
 type RequestOpts = {
   query?: string;
@@ -22,6 +26,8 @@ async function request<T>(
   opts: RequestOpts = {}
 ): Promise<T> {
   const url = new URL(withQuery(path, opts.query), BASE_URL).toString();
+    const user = useUser();
+    const token = user.getAccessToken();
 
   const headers: Record<string, string> = {
     Accept: 'application/json',
@@ -30,6 +36,7 @@ async function request<T>(
       : {}),
     ...(opts.ifMatch !== undefined ? { 'If-Match': String(opts.ifMatch) } : {}),
     ...(opts.headers ?? {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 
   const res = await fetch(url, {
