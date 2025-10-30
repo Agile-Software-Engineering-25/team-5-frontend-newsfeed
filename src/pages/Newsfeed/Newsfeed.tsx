@@ -21,8 +21,6 @@ import type {
 
 import useUser from '@/hooks/useUser';
 
-const role: 'admin' | 'user' | 'prof' = 'admin';
-
 const Newsfeed: React.FC = () => {
   const [posts, setPosts] = useState<NewsPostRead[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -132,7 +130,7 @@ const Newsfeed: React.FC = () => {
       {loading && <div>Wird geladen…</div>}
       {error && <div style={{ color: 'crimson' }}>Fehler: {error}</div>}
 
-      {role === 'admin' && (
+      {useUser().hasRole("sau-admin") && (
         <NewsPostCard
           post={newPostDraft}
           postViewProp="add"
@@ -148,7 +146,7 @@ const Newsfeed: React.FC = () => {
         <NewsPostCard
           key={p.id}
           post={p}
-          maintain={role === 'admin'}
+          maintain={useUser().hasRole("sau-admin")}
           onChange={handleChange}
           onSave={handleUpdate}
           onRemove={handleRemove}
