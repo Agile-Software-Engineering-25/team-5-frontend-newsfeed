@@ -42,7 +42,6 @@ const Newsfeed: React.FC = () => {
 
   // Backend-Load (ohne Frontend-Filterung)
   useEffect(() => {
-    if (!token) return; // <<— Warten bis Token verfügbar
     const ac = new AbortController();
     (async () => {
       setLoading(true);
@@ -126,6 +125,10 @@ const Newsfeed: React.FC = () => {
       />
       {loading && <div>Wird geladen…</div>}
       {error && <div style={{ color: 'crimson' }}>Fehler: {error}</div>}
+
+      <div>sau-admin: {user.hasRole("sau-admin")}</div>
+      <div>admin: {user.hasRole("admin")}</div>
+
 
       {user.hasRole("admin") && (
         <NewsPostCard
