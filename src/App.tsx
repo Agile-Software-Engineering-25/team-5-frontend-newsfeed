@@ -13,7 +13,7 @@ import {
 
 import useUser from '@/hooks/useUser';
 import { setDynamicHeadersProvider } from '@/services/apiClient';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 const joyTheme = createCustomJoyTheme();
 const muiTheme = createCustomMuiTheme();
@@ -21,16 +21,20 @@ const muiTheme = createCustomMuiTheme();
 function App(props: { basename: string }) {
   const { basename } = props;
   const user = useUser();
-  const token = user.getAccessToken();
+  const userRef = useRef(user);
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
 
   useEffect(() => {
     setDynamicHeadersProvider(() => {
+      console.log("yessss")
       const h: Record<string, string> = {};
-      if (token) h.Authorization = `Bearer ${token}`;
-      console.log("Tokennnnn"+ token)
+      const t = userRef.current?.getAccessToken?.();
+      if (t) h.Authorization = `Bearer ${t}`;
       return h;
     });
-  }, [token]);
+  }, []);
 
   return (
     <Provider store={store}>

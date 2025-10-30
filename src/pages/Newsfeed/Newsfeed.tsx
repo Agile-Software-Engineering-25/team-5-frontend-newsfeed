@@ -41,9 +41,11 @@ const Newsfeed: React.FC = () => {
 
   //user Data
   const user = useUser();
+  const token = user.getAccessToken();
 
   // Backend-Load (ohne Frontend-Filterung)
   useEffect(() => {
+    if (!token) return; // <<— Warten bis Token verfügbar
     const ac = new AbortController();
     (async () => {
       setLoading(true);
@@ -55,15 +57,13 @@ const Newsfeed: React.FC = () => {
         });
         setPosts(result.reverse());
       } catch (e) {
-        if ((e as Error).name !== 'AbortError') {
-          setError((e as Error).message);
-        }
+        if ((e as Error).name !== 'AbortError') setError((e as Error).message);
       } finally {
         setLoading(false);
       }
     })();
     return () => ac.abort();
-  }, [filterQuery]);
+  }, [filterQuery, token]);
 
   // Create / Update / Delete via API
   const handleCreate = useCallback(
@@ -130,7 +130,7 @@ const Newsfeed: React.FC = () => {
       {loading && <div>Wird geladen…</div>}
       {error && <div style={{ color: 'crimson' }}>Fehler: {error}</div>}
 
-      {useUser().hasRole("admin") && (
+      {user.hasRole("admin") && (
         <NewsPostCard
           post={newPostDraft}
           postViewProp="add"
@@ -146,7 +146,7 @@ const Newsfeed: React.FC = () => {
         <NewsPostCard
           key={p.id}
           post={p}
-          maintain={useUser().hasRole("sau-admin")}
+          maintain={user.hasRole("sau-admin")}
           onChange={handleChange}
           onSave={handleUpdate}
           onRemove={handleRemove}
