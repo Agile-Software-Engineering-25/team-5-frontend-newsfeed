@@ -1,5 +1,5 @@
 // src/services/apiClient.ts
-const BASE_URL = 'https://sau-portal.de/';
+const BASE_URL = 'https://sau-portal.de';
 //const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'https://sau-portal.de/api/newsfeed';
 
 let dynamicHeadersProvider: () => Record<string, string> = () => ({});

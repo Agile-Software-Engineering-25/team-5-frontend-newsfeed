@@ -1,27 +1,51 @@
-import { useMemo } from 'react';
-import axios from 'axios';
+import { useEffect, useMemo } from 'react';
+import axios, { type AxiosInstance } from 'axios';
 import i18n from '@/i18n';
 import useUser from './useUser';
 
-const useAxiosInstance = (baseUrl: string) => {
+const useAxiosInstance = (baseUrl: string): AxiosInstance => {
   const user = useUser();
-  const token = user.getAccessToken();
 
-  return useMemo(() => {
-    const instance = axios.create({ baseURL: baseUrl });
-    // Interceptor für Authorization-Header
-    instance.interceptors.request.use((config) => {
-      config.headers = config.headers || {};
+  // Ein einziges Axios-Objekt pro baseUrl
+  const instance = useMemo(() => {
+    return axios.create({ baseURL: baseUrl });
+  }, [baseUrl]);
+
+  useEffect(() => {
+    // Request-Interceptor: Token & Sprache immer frisch setzen
+    const reqId = instance.interceptors.request.use((config) => {
+      const token = user.getAccessToken?.();
+      config.headers = config.headers ?? {};
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+      } else {
+        delete config.headers.Authorization;
       }
-      if (i18n.language) {
-        config.headers['Accept-Language'] = i18n.language;
+      const lang = i18n?.language;
+      if (lang) {
+        config.headers['Accept-Language'] = lang;
       }
       return config;
     });
-    return instance;
-  }, [baseUrl]);
+
+    // Optional: Response-Interceptor (z.B. 401-Handling)
+    // const resId = instance.interceptors.response.use(
+    //   (res) => res,
+    //   (err) => {
+    //     if (err?.response?.status === 401) {
+    //       // z.B. Silent-Logout / Redirect
+    //     }
+    //     return Promise.reject(err);
+    //   }
+    // );
+
+    return () => {
+      instance.interceptors.request.eject(reqId);
+      // instance.interceptors.response.eject(resId);
+    };
+  }, [instance, user, i18n.language]);
+
+  return instance;
 };
 
 export default useAxiosInstance;
