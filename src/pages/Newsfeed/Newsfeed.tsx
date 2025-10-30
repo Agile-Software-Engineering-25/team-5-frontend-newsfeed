@@ -129,13 +129,11 @@ const Newsfeed: React.FC = () => {
 
       <div>{user.getFullName()}</div>
       <div>{user.getRoles()}</div>
-      <div>hasRole("sau-admin") {user.hasRole("sau-admin")}</div>
-      <div>hasRole("admin") {user.hasRole("admin")}</div>
-      <div>hasRole("university-administrative-staff") {user.hasRole("university-administrative-staff")}</div>
+      <div>{user.hasRole("sau-admin")}</div>
 
 
 
-      {user.hasRole("admin") && (
+      {user.hasRole("sau-admin") && (
         <NewsPostCard
           post={newPostDraft}
           postViewProp="add"
