@@ -49,7 +49,16 @@ interface NewsPostCardProps {
   onRemove?: (data: RemovePayload) => void;
 }
 
-const departmentOptions = ['Alle', 'F1', 'F2', 'F3', 'F4'];
+// Neue Rollen/Areas für den Dropdown (value = interne permission, label = Anzeige im UI)
+const departmentOptions = [
+  { value: 'Alle', label: 'Alle' },
+  { value: 'student', label: 'Alle Studenten' },
+  { value: 'lecturer', label: 'Alle Lehrkräfte' },
+  { value: 'Area-2.Team-5.Read.NewsPost-Engineering', label: 'Studenten Engineering' },
+  { value: 'Area-2.Team-5.Read.NewsPost-ComputerScience', label: 'Studenten Computer Science' },
+  { value: 'Area-2.Team-5.Read.NewsPost-Business', label: 'Studenten Business' },
+  { value: 'Area-2.Team-5.Read.NewsPost-Chemistry', label: 'Studenten Chemie' },
+];
 
 const NewsPostCard: React.FC<NewsPostCardProps> = ({
                                                      post,
@@ -76,9 +85,17 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
   const [postView, setPostView] = useState<'add' | 'edit' | 'show'>(
     postViewProp
   );
-  const [localDepartment, setLocalDepartment] = useState<string[]>(
-    department ? department.split(',') : ['Alle']
-  );
+  // Normalisiere initiales department prop: entweder 'Alle' oder gültige domain-roles (values)
+  const domainValues = departmentOptions.map((d) => d.value).filter((v) => v !== 'Alle');
+  const initialDepartments = useMemo(() => {
+    if (!department) return ['Alle'];
+    const parts = department.split(',').map((s) => s.trim());
+    if (parts.includes('Alle')) return ['Alle'];
+    const filtered = domainValues.filter((r) => parts.includes(r));
+    return filtered.length === 0 ? ['Alle'] : filtered;
+  }, [department]);
+
+  const [localDepartment, setLocalDepartment] = useState<string[]>(initialDepartments);
 
   // Dropdown
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -157,20 +174,22 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
     [onChange]
   );
 
-  const handleCheckboxChange = (option: string) => {
-    const fachbereiche = ['F1', 'F2', 'F3', 'F4'];
-    if (option === 'Alle') {
+  const handleCheckboxChange = (optionValue: string) => {
+    // alle domain-values (ohne 'Alle')
+    const domains = domainValues;
+    if (optionValue === 'Alle') {
       setLocalDepartment(['Alle']);
     } else {
-      let next = localDepartment.includes(option)
-        ? localDepartment.filter((d) => d !== option)
-        : [...localDepartment.filter((d) => d !== 'Alle'), option];
-      if (fachbereiche.every((fb) => next.includes(fb))) next = ['Alle'];
+      let next = localDepartment.includes(optionValue)
+        ? localDepartment.filter((d) => d !== optionValue)
+        : [...localDepartment.filter((d) => d !== 'Alle'), optionValue];
+
+      // Wenn alle Domains ausgewählt sind -> 'Alle'
+      if (domains.every((dm) => next.includes(dm))) next = ['Alle'];
       if (next.length === 0) next = ['Alle'];
-      next =
-        next[0] === 'Alle'
-          ? ['Alle']
-          : fachbereiche.filter((fb) => next.includes(fb));
+
+      // Normalisiere: wenn 'Alle' gesetzt ist, speichere nur 'Alle', sonst nur die Domains
+      next = next[0] === 'Alle' ? ['Alle'] : domains.filter((dm) => next.includes(dm));
       setLocalDepartment(next);
     }
   };
@@ -183,7 +202,19 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
       content: { format: 'html', body: localContent.body },
       author: post.author ?? { user_id: 'unknown', name: authorName },
       creation_date: post.creation_date ?? new Date().toISOString(),
-      permissions: (post as NewsPostCreate).permissions,
+      // Immer diese beiden Gruppen erlauben
+      permissions: Array.from(
+        new Set(
+          [
+            'sau-admin',
+            'university-administrative-staff',
+            // falls 'Alle' ausgewählt ist, geben wir keine domain-spezifischen Rollen hinzu
+            ...(localDepartment[0] === 'Alle' ? [] : localDepartment),
+            // falls im post bereits permissions vorhanden sind (z.B. beim Edit), merge sie
+            ...((post as NewsPostCreate).permissions ?? []),
+          ].filter(Boolean)
+        )
+      ),
     };
   }, [post, localTitle, localContent.body, authorName]);
 
@@ -358,7 +389,13 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
                     }}
                   >
                     {localDepartment.length > 0
-                      ? localDepartment.join(', ')
+                      ? // map stored values to labels for display
+                        localDepartment
+                          .map((v) => {
+                            const found = departmentOptions.find((o) => o.value === v);
+                            return found ? found.label : v;
+                          })
+                          .join(', ')
                       : 'Alle auswählen'}
                   </JoyButton>
                   {dropdownOpen && (
@@ -383,7 +420,7 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
                     >
                       {departmentOptions.map((option) => (
                         <label
-                          key={option}
+                          key={option.value}
                           /* .dropdownItem */
                           style={{
                             display: 'flex',
@@ -396,10 +433,10 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
                           }}
                         >
                           <JoyCheckbox
-                            checked={localDepartment.includes(option)}
-                            onChange={() => handleCheckboxChange(option)}
+                            checked={localDepartment.includes(option.value)}
+                            onChange={() => handleCheckboxChange(option.value)}
                           />
-                          <span>{option}</span>
+                          <span>{option.label}</span>
                         </label>
                       ))}
                     </div>

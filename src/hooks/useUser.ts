@@ -76,3 +76,9 @@ export const useUser = () => {
 };
 
 export default useUser;
+
+// Dev-Helper: setGlobalUser im Browser verfügbar machen (nur für lokale Tests)
+if (process.env.NODE_ENV !== 'production') {
+  // @ts-ignore
+  (window as any).setGlobalUser = setGlobalUser;
+}

@@ -112,8 +112,7 @@ const Newsfeed: React.FC = () => {
     content: { format: 'html', body: '' },
     author: { user_id: user.getUserId(), name: user.getFullName() },
     creation_date: new Date().toISOString(),
-      permissions: ["sau-admin", "university-administrative-staff"]
-
+    permissions: ['sau-admin', 'university-administrative-staff'],
   };
 
   return (
@@ -125,8 +124,9 @@ const Newsfeed: React.FC = () => {
       />
       {loading && <div>Wird geladen…</div>}
       {error && <div style={{ color: 'crimson' }}>Fehler: {error}</div>}
+      {' '}
 
-      {user.hasRole("sau-admin") && (
+    {user.hasRole('sau-admin') && (
         <NewsPostCard
           post={newPostDraft}
           postViewProp="add"
@@ -136,13 +136,13 @@ const Newsfeed: React.FC = () => {
           onCancel={() => undefined}
         />
       )}
-
+      
       {/* Keine Frontend-Filterung/Pagination: genau das rendern, was vom Backend kommt */}
       {posts.map((p) => (
         <NewsPostCard
           key={p.id}
           post={p}
-          maintain={user.hasRole("sau-admin")}
+          maintain={user.hasRole('sau-admin')}
           onChange={handleChange}
           onSave={handleUpdate}
           onRemove={handleRemove}
