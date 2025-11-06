@@ -263,7 +263,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
               }}
             >
               {state.datePreset === 'all'
-                ? 'Alle Daten'
+                ? 'Gesamter Zeitraum'
                 : state.datePreset === '7d'
                   ? 'Letzte 7 Tage'
                   : state.datePreset === '30d'
