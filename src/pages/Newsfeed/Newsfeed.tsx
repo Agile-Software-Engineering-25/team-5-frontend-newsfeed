@@ -21,7 +21,7 @@ const Newsfeed: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [nextButtonVisible, setNextButtonVisible] = useState(true);
+  const [nextButtonVisible, setNextButtonVisible] = useState(false);
 
   const [filters, setFilters] = useState<FilterState>({
     search: '',
@@ -55,10 +55,10 @@ const Newsfeed: React.FC = () => {
         });
         setPosts(result.reverse());
         if (result.length <= 0) {
-          setNextButtonVisible(false);
+          setNextButtonVisible(true);
         }else
         {
-          setNextButtonVisible(true);
+          setNextButtonVisible(false);
         }
       } catch (e) {
         if ((e as Error).name !== 'AbortError') setError((e as Error).message);

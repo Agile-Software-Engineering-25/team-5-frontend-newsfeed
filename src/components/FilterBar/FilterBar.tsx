@@ -62,7 +62,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
                                                initial,
                                                onChange,
                                                pageSizeOptions = [6, 20, 50],
-                                               nextButtonVisible = true,
+                                               nextButtonVisible,
                                              }) => {
   const [state, setState] = useState<FilterState>({
     ...defaultState,
