@@ -520,18 +520,6 @@ const FilterBar: React.FC<FilterBarProps> = ({
           ))}
         </div>
       )}
-
-      {/* Debug/Dev: Query-Anzeige */}
-      <div
-        style={{
-          marginTop: 6,
-          fontFamily: 'monospace',
-          fontSize: 12,
-          color: '#555',
-        }}
-      >
-        ?{queryString}
-      </div>
     </div>
   );
 };
