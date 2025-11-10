@@ -16,6 +16,7 @@ export type FilterBarProps = {
   initial?: Partial<FilterState>;
   onChange?: (state: FilterState, query: string) => void; // callback bei jeder Änderung
   pageSizeOptions?: number[]; // z.B. [6, 20, 50]
+  nextButtonVisible: boolean
 };
 
 // eslint-disable-next-line react-refresh/only-export-components,func-style
@@ -61,6 +62,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
                                                initial,
                                                onChange,
                                                pageSizeOptions = [6, 20, 50],
+                                               nextButtonVisible = true,
                                              }) => {
   const [state, setState] = useState<FilterState>({
     ...defaultState,
@@ -179,6 +181,8 @@ const FilterBar: React.FC<FilterBarProps> = ({
     }
     return out;
   }, [state.search, state.datePreset, state.from, state.to]);
+
+
 
   return (
     <div
@@ -306,7 +310,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
                     cursor: 'pointer',
                   }}
                 >
-                  Alle Daten
+                  Gesamter Zeitraum
                 </label>
                 <label
                   onClick={() => {
@@ -487,7 +491,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
         <JoyButton onClick={prevPage} disabled={state.page <= 1}>
           ← Zurück
         </JoyButton>
-        <JoyButton onClick={nextPage}>Weiter →</JoyButton>
+        <JoyButton onClick={nextPage} disabled={nextButtonVisible}>Weiter →</JoyButton>
       </div>
 
       {/* Zeile 2: Aktive Filter-Chips */}

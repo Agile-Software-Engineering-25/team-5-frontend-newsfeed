@@ -21,6 +21,8 @@ const Newsfeed: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [nextButtonVisible, setNextButtonVisible] = useState(true);
+
   const [filters, setFilters] = useState<FilterState>({
     search: '',
     datePreset: 'all',
@@ -52,6 +54,12 @@ const Newsfeed: React.FC = () => {
           signal: ac.signal,
         });
         setPosts(result.reverse());
+        if (result.length <= 0) {
+          setNextButtonVisible(false);
+        }else
+        {
+          setNextButtonVisible(true);
+        }
       } catch (e) {
         if ((e as Error).name !== 'AbortError') setError((e as Error).message);
       } finally {
@@ -121,6 +129,7 @@ const Newsfeed: React.FC = () => {
         initial={filters}
         onChange={setFilters}
         pageSizeOptions={[10, 20, 50]}
+        nextButtonVisible={nextButtonVisible}
       />
       {loading && <div>Wird geladen…</div>}
       {error && <div style={{ color: 'crimson' }}>Fehler: {error}</div>}
