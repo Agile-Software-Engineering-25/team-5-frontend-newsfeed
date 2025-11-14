@@ -341,10 +341,11 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
       /* Responsive adjustments */
       .news-article {
         width: 100%;
-        max-width: 1040px;
+        max-width: 975px;
         min-height: 560px;
         margin: 28px auto;
-        padding: 40px 44px 28px 44px; /* reduce bottom padding a bit */
+        padding: 30px; /* reduce bottom padding a bit */
+        padding-bottom: 0px;
         background: #e3edf9;
         border-radius: 12px;
         overflow: hidden;
