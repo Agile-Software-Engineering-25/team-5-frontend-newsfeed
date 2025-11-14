@@ -119,10 +119,7 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
     const fromPermissions = (perms?: string[]) => {
       if (!perms || perms.length === 0) return null;
       const permsSet = new Set(perms);
-      // If backend explicitly returned 'Alle', honour it
-      if (permsSet.has(ALL_TOKEN)) return [ALL_TOKEN];
-
-      // If student/lecturer tokens present, include them
+  // If student/lecturer tokens present, include them
       const picked: string[] = [];
       if (permsSet.has(STUDENT_TOKEN)) picked.push(STUDENT_TOKEN);
       if (permsSet.has(LECTURER_TOKEN)) picked.push(LECTURER_TOKEN);
@@ -673,7 +670,11 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
                 {formatDate(dateIso || new Date().toISOString())}
               </span>
               <span /* .department (keine eigenen Styles) */>
-                Fachbereich: {getDisplayDepartments().map(valueToLabel).join(', ')}
+                Fachbereich: {(() => {
+                  const vals = getDisplayDepartments();
+                  if (vals.length === 1 && vals[0] === ALL_TOKEN) return 'Alle';
+                  return vals.map(valueToLabel).join(', ');
+                })()}
               </span>
             </div>
           </>
