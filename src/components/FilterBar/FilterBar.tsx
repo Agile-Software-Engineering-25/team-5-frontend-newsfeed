@@ -185,26 +185,59 @@ const FilterBar: React.FC<FilterBarProps> = ({
 
 
   return (
-    <div
-      style={{
-        background: '#e3edf9',
-        border: '1px solid #ddd',
-        borderRadius: 12,
-        padding: 15,
-        marginBottom: 16,
-        width: '1390px' /* feste Breite */,
-        margin: '0 auto' /* zentrieren */,
-      }}
-    >
+    <>
+      <style>{`
+        .filter-bar {
+          background: #e3edf9;
+          border: 1px solid #ddd;
+          border-radius: 12px;
+          padding: 18px;
+          margin-bottom: 20px;
+          
+          width: 1500px;
+          margin: 0 auto;
+          box-sizing: border-box;
+          text-align: center;
+        }
+        .filter-row {
+          display: flex;
+          gap: 14px;
+          flex-wrap: wrap;
+          align-items: center;
+          justify-content: center;
+        }
+        .chips-row {
+          margin-top: 10px;
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+  .dropdown-wrapper { position: relative; min-width: 180px; }
+  .page-size-wrapper { min-width: 120px; }
+  .page-input { display: flex; align-items: center; gap: 8px; }
+        .actions-inline { display: flex; gap: 8px; margin-left: auto; align-items: center; white-space: nowrap; }
+  .filter-row input[type="date"], .filter-row input[type="number"] { max-width: 160px; flex: 0 0 auto; }
+        /* medium breakpoint: slightly narrower than desktop */
+        @media (max-width: 1400px) {
+          .filter-bar { max-width: 1160px; }
+        }
+        /* smaller screens: use percentage-based width */
+        @media (max-width: 1000px) {
+          .filter-bar { max-width: 95%; padding: 12px; }
+        }
+        @media (max-width: 800px) {
+          .filter-row { flex-direction: column; align-items: stretch; }
+          .dropdown-wrapper { min-width: 0; width: 100%; }
+          .filter-bar input[type="text"] { width: 100%; }
+          .page-input { width: 100%; display: flex; gap: 8px; align-items: center; }
+          .page-input input { flex: 0 0 100px; margin-left: 8px; }
+          .actions-inline { display: flex; gap: 8px; flex-wrap: nowrap; justify-content: flex-end; }
+        }
+      `}</style>
+
+      <div className="filter-bar">
       {/* Zeile 1: Suche + Presets */}
-      <div
-        style={{
-          display: 'flex',
-          gap: 12,
-          flexWrap: 'wrap',
-          alignItems: 'center',
-        }}
-      >
+      <div className="filter-row">
         {AgileSearch ? (
           <AgileSearch
             value={state.search}
@@ -397,7 +430,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
         )}
 
         {/* Page Input bleibt, PageSize als Dropdown (Inline-Styles statt CSS-Klassen) */}
-        <label style={{ marginLeft: 'auto' }}>
+        <label>
           Seite:
           <input
             type="number"
@@ -414,12 +447,9 @@ const FilterBar: React.FC<FilterBarProps> = ({
           />
         </label>
 
-        <div
-          ref={pageSizeRef}
-          style={{ display: 'flex', alignItems: 'center', gap: 8 }}
-        >
+        <div ref={pageSizeRef} className="page-input">
           <label>pro Seite:</label>
-          <div style={{ position: 'relative', minWidth: 180 }}>
+          <div className="dropdown-wrapper page-size-wrapper">
             <button
               type="button"
               onClick={() => setPageSizeOpen((o) => !o)}
@@ -488,17 +518,17 @@ const FilterBar: React.FC<FilterBarProps> = ({
           </div>
         </div>
 
-        <JoyButton onClick={prevPage} disabled={state.page <= 1}>
-          ← Zurück
-        </JoyButton>
-        <JoyButton onClick={nextPage} disabled={nextButtonVisible}>Weiter →</JoyButton>
+        <div className="actions-inline">
+          <JoyButton onClick={prevPage} disabled={state.page <= 1}>
+            ← Zurück
+          </JoyButton>
+          <JoyButton onClick={nextPage} disabled={nextButtonVisible}>Weiter →</JoyButton>
+        </div>
       </div>
 
       {/* Zeile 2: Aktive Filter-Chips */}
       {chips.length > 0 && (
-        <div
-          style={{ marginTop: 10, display: 'flex', gap: 8, flexWrap: 'wrap' }}
-        >
+        <div className="chips-row">
           {chips.map((c, i) => (
             <span
               key={i}
@@ -521,6 +551,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
         </div>
       )}
     </div>
+    </>
   );
 };
 

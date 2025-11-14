@@ -332,30 +332,84 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
 
         {`
       .ql-editor {
-        min-height: 180px;
-        padding: 12px;
-        line-height: 1.6;
-        font-size: 16px;
-        
+        min-height: 200px;
+        padding: 14px;
+        line-height: 1.7;
+        font-size: 17px;
+      }
+
+      /* Responsive adjustments */
+      .news-article {
+        width: 100%;
+        max-width: 1040px;
+        min-height: 560px;
+        margin: 28px auto;
+        padding: 40px 44px 28px 44px; /* reduce bottom padding a bit */
+        background: #e3edf9;
+        border-radius: 12px;
+        overflow: hidden;
+        color: #1a1a1a;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+      }
+
+      .news-meta {
+        display: flex;
+        gap: 26px;
+        font-size: 17px;
+        color: rgba(0,0,0,0.6);
+        margin-top: 10px;
+        align-items: center;
+      }
+
+      .dropdown-list {
+        min-width: 180px;
+      }
+
+      .actions-row {
+        display: flex;
+        gap: 14px;
+        justify-content: flex-end;
+        margin-top: 14px;
+        margin-bottom: 8px; /* less space under the buttons */
+        padding-right: 24px;
+        padding-bottom: 8px;
+      }
+
+      @media (max-width: 600px) {
+        .news-article {
+          padding: 20px;
+        }
+        .news-article { max-width: 95%; }
+        .ql-editor {
+          font-size: 15px;
+        }
+        input[type="text"] {
+          font-size: 18px;
+        }
+        .news-meta {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 8px;
+        }
+        .dropdown-list {
+          min-width: 140px;
+          width: 100%;
+        }
+        .actions-row {
+          flex-direction: column;
+          align-items: stretch;
+          padding-right: 0;
+        }
+        .actions-row button {
+          width: 100%;
+        }
       }
     `}
       </style>
 
-    <article
-      style={{
-        width: '100%',
-        maxWidth: '1000px',
-        minHeight: '340px',
-        margin: '35px auto',
-        padding: '30px',
-        background: '#e3edf9',
-        borderRadius: '12px',
-        overflow: 'hidden',
-        color: '#1a1a1a',
-        display: 'flex',
-        flexDirection: 'column',
-        transition: 'transform 0.25s ease, box-shadow 0.25s ease',
-      }}
+    <article className="news-article"
     >
       <header
         style={{
@@ -385,16 +439,7 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
               value={localTitle}
               onChange={handleTitleChange}
             />
-            <div
-              /* .meta */
-              style={{
-                display: 'flex',
-                gap: '24px',
-                fontSize: '16px',
-                color: 'rgba(0, 0, 0, 0.55)',
-                marginTop: '8px',
-                alignItems: 'center',
-              }}
+            <div className="news-meta"
             >
               <span /* .author */ style={{ fontStyle: 'italic' }}>
                 Von {authorName}
@@ -450,25 +495,25 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
                       : 'Alle auswählen'}
                   </JoyButton>
                   {dropdownOpen && (
-                    <div
-                      /* .dropdownList */
-                      style={{
-                        position: 'absolute',
-                        top: '110%',
-                        left: 0,
-                        width: '100%',
-                        background: '#fff',
-                        borderRadius: '6px',
-                        boxShadow: '0 6px 30px rgba(16,24,40,0.08)',
-                        padding: '8px 8px',
-                        zIndex: 10,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '6px',
-                        minWidth: '180px',
-                        border: '1px solid rgba(16,24,40,0.04)',
-                      }}
-                    >
+                      <div className="dropdown-list"
+                        /* .dropdownList */
+                        style={{
+                          position: 'absolute',
+                          top: '110%',
+                          left: 0,
+                          width: '100%',
+                          background: '#fff',
+                          borderRadius: '6px',
+                          boxShadow: '0 6px 30px rgba(16,24,40,0.08)',
+                          padding: '8px 8px',
+                          zIndex: 10,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '6px',
+                          minWidth: '180px',
+                          border: '1px solid rgba(16,24,40,0.04)',
+                        }}
+                      >
                       {departmentOptions.map((option) => (
                         <label
                           key={option.value}
@@ -542,17 +587,7 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
             }}
             dangerouslySetInnerHTML={{ __html: safeHtml }}
           />
-          <div
-            /* .actions */
-            style={{
-              display: 'flex',
-              gap: '12px',
-              justifyContent: 'flex-end',
-              marginTop: '20px',
-              marginBottom: '16px',
-              paddingRight: '24px',
-              paddingBottom: '16px',
-            }}
+          <div className="actions-row"
           >
             {maintain && (
               <>
