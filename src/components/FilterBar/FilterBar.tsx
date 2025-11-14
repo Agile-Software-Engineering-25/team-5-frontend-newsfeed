@@ -218,13 +218,13 @@ const FilterBar: React.FC<FilterBarProps> = ({
         .actions-inline { display: flex; gap: 8px; margin-left: auto; align-items: center; white-space: nowrap; }
   .filter-row input[type="date"], .filter-row input[type="number"] { max-width: 160px; flex: 0 0 auto; }
         /* medium breakpoint: slightly narrower than desktop */
-        @media (max-width: 1500px) {
+        @media (max-width: 1520px) {
           .filter-bar { max-width: 1300px; }
         }
-          @media (max-width: 1495px) {
+          @media (max-width: 1490px) {
           .filter-bar { max-width: 1000; }
         /* smaller screens: use percentage-based width */
-        @media (max-width: 1315px) {
+        @media (max-width: 1320px) {
           .filter-bar { max-width: 80%; padding: 12px; }
         }
           @media (max-width: 1290px) {
