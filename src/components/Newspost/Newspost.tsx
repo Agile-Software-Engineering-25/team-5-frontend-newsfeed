@@ -149,6 +149,41 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
   // immediately after save (even if the backend returns a different permissions list).
   const [lastSavedDepartment, setLastSavedDepartment] = useState<string[] | null>(null);
 
+  // If the parent updates the `post` prop (e.g. after create/update), sync the
+  // displayed departments in show-mode to reflect the server/parent-provided value.
+  useEffect(() => {
+    // Only sync when we're in show mode (avoid clobbering unsaved edits)
+    if (postView !== 'show') return;
+
+    // Prefer parent-provided `post.department` UI hint if present
+    const postDept = (post as any).department as string | undefined;
+    if (postDept) {
+      const parts = postDept.split(',').map((s) => s.trim());
+      if (parts.includes(ALL_TOKEN)) {
+        setLocalDepartment([ALL_TOKEN]);
+        setLastSavedDepartment(null);
+        return;
+      }
+      const filtered = domainValues.filter((r) => parts.includes(r));
+      setLocalDepartment(filtered.length === 0 ? [ALL_TOKEN] : sortDepartments(filtered));
+      setLastSavedDepartment(null);
+      return;
+    }
+
+    // Otherwise try to reconstruct from post.permissions (server returned explicit perms)
+    const perms = ((post as any).permissions ?? []) as string[];
+    if (perms.length > 0) {
+      const picked: string[] = [];
+      if (perms.includes(STUDENT_TOKEN)) picked.push(STUDENT_TOKEN);
+      if (perms.includes(LECTURER_TOKEN)) picked.push(LECTURER_TOKEN);
+      areaValues.forEach((v) => {
+        if (perms.includes(v)) picked.push(v);
+      });
+      setLocalDepartment(picked.length === 0 ? [ALL_TOKEN] : sortDepartments(picked));
+      setLastSavedDepartment(null);
+    }
+  }, [post, postView]);
+
   // Dropdown
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -384,8 +419,6 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
     const perms = (post as any).permissions as string[] | undefined;
     if (perms && perms.length > 0) {
       const permsSet = new Set(perms);
-      if (permsSet.has(ALL_TOKEN)) return [ALL_TOKEN];
-
       const picked: string[] = [];
       if (permsSet.has(STUDENT_TOKEN)) picked.push(STUDENT_TOKEN);
       if (permsSet.has(LECTURER_TOKEN)) picked.push(LECTURER_TOKEN);
@@ -393,16 +426,20 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
         if (permsSet.has(v)) picked.push(v);
       });
 
-      // If reconstructed picked list covers all known domain values, treat as ALL
-      const allDomain = domainValues.slice(); // student, lecturer + areaValues
-      const pickedSet = new Set(picked);
-      const coversAll = allDomain.every((d) => pickedSet.has(d));
-      if (coversAll) return [ALL_TOKEN];
+  // If server returned all known domain tokens, treat as ALL for display
+  const domainList = domainValues.slice();
+  const permsCoverAll = domainList.every((d) => permsSet.has(d));
+  if (permsCoverAll) return [ALL_TOKEN];
 
-      // If both student and lecturer are present, treat as ALL
-      if (pickedSet.has(STUDENT_TOKEN) && pickedSet.has(LECTURER_TOKEN)) return [ALL_TOKEN];
+  // If reconstructed picked list covers all known domain values, treat as ALL
+  const pickedSet = new Set(picked);
+  const pickedCoversAll = domainList.every((d) => pickedSet.has(d));
+  if (pickedCoversAll) return [ALL_TOKEN];
 
-      if (picked.length > 0) return sortDepartments(picked);
+  // If both student and lecturer are present, treat as ALL
+  if (pickedSet.has(STUDENT_TOKEN) && pickedSet.has(LECTURER_TOKEN)) return [ALL_TOKEN];
+
+  if (picked.length > 0) return sortDepartments(picked);
     }
 
     // Fallback to whatever localDepartment contains (likely ['Alle'])
