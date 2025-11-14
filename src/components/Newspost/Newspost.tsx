@@ -296,15 +296,24 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
       content: { format: 'html', body: localContent.body },
       author: post.author ?? { user_id: 'unknown', name: authorName },
       creation_date: post.creation_date ?? new Date().toISOString(),
-      // Immer diese beiden Gruppen erlauben
+      // Immer diese beiden Gruppen erlauben.
+      // Für domain-spezifische Rechte (student/lecturer/Area-*) verwenden wir ausschließlich
+      // die aktuell ausgewählten Werte. Falls das Original-`post.permissions` zusätzliche
+      // nicht-domain Rollen (z.B. andere system Rollen) enthält, behalten wir diese bei.
       permissions: Array.from(
         new Set([
           'sau-admin',
           'university-administrative-staff',
           // Wenn ALL_TOKEN ausgewählt ist, fügen wir alle domainValues hinzu
           ...(localDepartment.includes(ALL_TOKEN) ? domainValues : localDepartment),
-          // falls im post bereits permissions vorhanden sind (z.B. beim Edit), merge sie
-          ...((post as NewsPostCreate).permissions ?? []),
+          // Merge only non-domain, non-token permissions from original post (keep other roles)
+          ...(((post as any).permissions ?? []) as string[]).filter((p) => {
+            if (!p) return false;
+            // exclude our domain tokens
+            if (p === ALL_TOKEN || p === STUDENT_TOKEN || p === LECTURER_TOKEN) return false;
+            if (domainValues.includes(p)) return false;
+            return true;
+          }),
         ].filter(Boolean))
       ),
     };
