@@ -321,6 +321,13 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
     if (nextSet.size === 0) nextSet.add(ALL_TOKEN);
 
     setLocalDepartment(Array.from(nextSet));
+    // Clear any remembered saved-selection so the UI shows the live selection
+    setLastSavedDepartment(null);
+
+    // Inform parent about the department/permissions change so it can react if needed
+    const nextArray = Array.from(nextSet);
+    const permsToSend = nextArray.includes(ALL_TOKEN) ? domainValues : nextArray;
+    onChange?.({ post: { permissions: permsToSend } });
   };
 
   const buildPayload = useCallback((): NewsPostCreate | NewsPostUpdate => {
