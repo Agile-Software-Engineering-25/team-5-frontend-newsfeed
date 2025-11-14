@@ -109,15 +109,43 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
   const [postView, setPostView] = useState<'add' | 'edit' | 'show'>(
     postViewProp
   );
-  // Normalisiere initiales department prop: entweder 'Alle' oder gültige domain-roles (values)
+  // Known domain values (all non-admin tokens)
   const domainValues = departmentOptions.map((d) => d.value).filter((v) => v !== ALL_TOKEN);
+
+  // Normalisiere initiale Auswahl: falls `post.permissions` vom Backend vorhanden ist,
+  // verwende diese (ohne Admin-Rollen). Fallback auf das optionale `department`-prop.
   const initialDepartments = useMemo(() => {
-    if (!department) return ['Alle'];
+    // Helper: extract known tokens from an array of permission strings
+    const fromPermissions = (perms?: string[]) => {
+      if (!perms || perms.length === 0) return null;
+      const permsSet = new Set(perms);
+      // If backend explicitly returned 'Alle', honour it
+      if (permsSet.has(ALL_TOKEN)) return [ALL_TOKEN];
+
+      // If student/lecturer tokens present, include them
+      const picked: string[] = [];
+      if (permsSet.has(STUDENT_TOKEN)) picked.push(STUDENT_TOKEN);
+      if (permsSet.has(LECTURER_TOKEN)) picked.push(LECTURER_TOKEN);
+
+      // Add any area-specific domain values present
+      areaValues.forEach((v) => {
+        if (permsSet.has(v)) picked.push(v);
+      });
+
+      return picked.length === 0 ? null : picked;
+    };
+
+    // 1) try post.permissions (read mode / after create/update)
+    const fromPost = fromPermissions((post as any).permissions as string[] | undefined);
+    if (fromPost) return fromPost;
+
+    // 2) fallback: parse `department` prop which may be a CSV of labels/values
+    if (!department) return [ALL_TOKEN];
     const parts = department.split(',').map((s) => s.trim());
-    if (parts.includes('Alle')) return ['Alle'];
+    if (parts.includes(ALL_TOKEN)) return [ALL_TOKEN];
     const filtered = domainValues.filter((r) => parts.includes(r));
-    return filtered.length === 0 ? ['Alle'] : filtered;
-  }, [department]);
+    return filtered.length === 0 ? [ALL_TOKEN] : filtered;
+  }, [department, post]);
 
   const [localDepartment, setLocalDepartment] = useState<string[]>(initialDepartments);
 
