@@ -368,6 +368,9 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
   // Prefer explicit selections (non-'Alle') from local state; if only 'Alle' present,
   // try to reconstruct selections from the `post.permissions` returned by the server.
   const getDisplayDepartments = useCallback((): string[] => {
+    // If local explicitly includes 'Alle', show only 'Alle'
+    if (localDepartment.includes(ALL_TOKEN)) return [ALL_TOKEN];
+
     // If local has explicit tokens (other than 'Alle'), use those
     const nonAll = localDepartment.filter((v) => v !== ALL_TOKEN);
     if (nonAll.length > 0) return sortDepartments(nonAll);
@@ -384,6 +387,15 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
       areaValues.forEach((v) => {
         if (permsSet.has(v)) picked.push(v);
       });
+
+      // If reconstructed picked list covers all known domain values, treat as ALL
+      const allDomain = domainValues.slice(); // student, lecturer + areaValues
+      const pickedSet = new Set(picked);
+      const coversAll = allDomain.every((d) => pickedSet.has(d));
+      if (coversAll) return [ALL_TOKEN];
+
+      // If both student and lecturer are present, treat as ALL
+      if (pickedSet.has(STUDENT_TOKEN) && pickedSet.has(LECTURER_TOKEN)) return [ALL_TOKEN];
 
       if (picked.length > 0) return sortDepartments(picked);
     }
