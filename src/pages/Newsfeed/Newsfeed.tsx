@@ -74,7 +74,23 @@ const Newsfeed: React.FC = () => {
     async ({ post }: { post: NewsPostCreate }) => {
       try {
         const created = await createPost(post);
-        // Optional: direkt oben einfügen – oder einfach Reload durch Filteränderung triggern
+        // Wenn der gesendete Payload alle domain-Permissions enthielt, markieren wir
+        // das erstellte Objekt mit einem UI-Tag `department = 'Alle'`, damit die
+        // NewsPostCard nach dem Speichern nur 'Alle' anzeigt (nicht alle Einzelrechte).
+        const domainValues = [
+          'student',
+          'lecturer',
+          'Area-2.Team-5.Read.NewsPost-Engineering',
+          'Area-2.Team-5.Read.NewsPost-ComputerScience',
+          'Area-2.Team-5.Read.NewsPost-Business',
+          'Area-2.Team-5.Read.NewsPost-Chemistry',
+        ];
+        const sentPerms = (post.permissions ?? []) as string[];
+        const sentSet = new Set(sentPerms);
+        const coversAll = domainValues.every((d) => sentSet.has(d));
+        if (coversAll) {
+          (created as any).department = 'Alle';
+        }
         setPosts((prev) => [created, ...prev]);
       } catch (e) {
         alert((e as Error).message);
@@ -87,6 +103,20 @@ const Newsfeed: React.FC = () => {
     async ({ post }: { post: NewsPostUpdate }) => {
       try {
         const updated = await updatePost(post.id, post);
+        const domainValues = [
+          'student',
+          'lecturer',
+          'Area-2.Team-5.Read.NewsPost-Engineering',
+          'Area-2.Team-5.Read.NewsPost-ComputerScience',
+          'Area-2.Team-5.Read.NewsPost-Business',
+          'Area-2.Team-5.Read.NewsPost-Chemistry',
+        ];
+        const sentPerms = (post.permissions ?? []) as string[];
+        const sentSet = new Set(sentPerms);
+        const coversAll = domainValues.every((d) => sentSet.has(d));
+        if (coversAll) {
+          (updated as any).department = 'Alle';
+        }
         setPosts((prev) =>
           prev.map((p) => (p.id === updated.id ? updated : p))
         );
