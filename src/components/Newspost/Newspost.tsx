@@ -71,6 +71,19 @@ const areaValues = [
   'Area-2.Team-5.Read.NewsPost-Chemistry',
 ];
 
+// helpers: map value -> label and sort selected values into the fixed order
+function valueToLabel(value: string) {
+  const found = departmentOptions.find((o) => o.value === value);
+  return found ? found.label : value;
+}
+
+function sortDepartments(values: string[]) {
+  const order = departmentOptions.map((o) => o.value);
+  const set = new Set(values);
+  // preserve only known values and sort by index in departmentOptions
+  return order.filter((v) => set.has(v));
+}
+
 const NewsPostCard: React.FC<NewsPostCardProps> = ({
                                                      post,
                                                      postViewProp = 'show',
@@ -272,17 +285,17 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
   const handleSave = useCallback(() => {
     const payload = buildPayload();
     onSave?.({ post: payload });
-
-    // Nach Speichern zurücksetzen für neuen Post (nur im add-Modus sinnvoll)
-    if (postView === 'add') {
-      setLocalTitle('');
-      setLocalContent({ format: 'html', body: '' });
-    }
+    // After saving, show the post and ensure the displayed department list
+    const sorted = sortDepartments(localDepartment);
+    setLocalDepartment(sorted);
+    setPostView('show');
   }, [buildPayload, onSave, postView]);
 
   const handleEdit = useCallback(() => {
     const payload = buildPayload();
     onSave?.({ post: payload });
+    const sorted = sortDepartments(localDepartment);
+    setLocalDepartment(sorted);
     setPostView('show');
   }, [buildPayload, onSave]);
 
@@ -568,7 +581,7 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
                 {formatDate(dateIso || new Date().toISOString())}
               </span>
               <span /* .department (keine eigenen Styles) */>
-                Fachbereich: {localDepartment.join(', ')}
+                Fachbereich: {sortDepartments(localDepartment).map(valueToLabel).join(', ')}
               </span>
             </div>
           </>
