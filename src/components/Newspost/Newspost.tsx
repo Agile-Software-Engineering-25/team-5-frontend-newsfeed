@@ -148,6 +148,9 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
   }, [department, post]);
 
   const [localDepartment, setLocalDepartment] = useState<string[]>(initialDepartments);
+  // Remember the last saved selection so the UI can show exactly what the user clicked
+  // immediately after save (even if the backend returns a different permissions list).
+  const [lastSavedDepartment, setLastSavedDepartment] = useState<string[] | null>(null);
 
   // Dropdown
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -330,11 +333,13 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
       // keep the current selection but normalize/sort it for consistent display
       const sorted = sortDepartments(localDepartment);
       setLocalDepartment(sorted);
+      setLastSavedDepartment(sorted);
       // stay in 'add' mode
     } else {
       // For edits, show the saved post in read-mode
       const sorted = sortDepartments(localDepartment);
       setLocalDepartment(sorted);
+      setLastSavedDepartment(sorted);
       setPostView('show');
     }
   }, [buildPayload, onSave, postView, initialDepartments, localDepartment]);
@@ -344,6 +349,7 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
     onSave?.({ post: payload });
     const sorted = sortDepartments(localDepartment);
     setLocalDepartment(sorted);
+    setLastSavedDepartment(sorted);
     setPostView('show');
   }, [buildPayload, onSave]);
 
@@ -368,6 +374,8 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
   // Prefer explicit selections (non-'Alle') from local state; if only 'Alle' present,
   // try to reconstruct selections from the `post.permissions` returned by the server.
   const getDisplayDepartments = useCallback((): string[] => {
+    // If we have a remembered last-saved selection, prefer that in the show view
+    if (lastSavedDepartment && postView === 'show') return sortDepartments(lastSavedDepartment);
     // If local explicitly includes 'Alle', show only 'Alle'
     if (localDepartment.includes(ALL_TOKEN)) return [ALL_TOKEN];
 
