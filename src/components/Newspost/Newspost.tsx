@@ -355,6 +355,34 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
     return DOMPurify.sanitize(html || '');
   }, [localContent]);
 
+  // Compute what should be displayed as selected departments.
+  // Prefer explicit selections (non-'Alle') from local state; if only 'Alle' present,
+  // try to reconstruct selections from the `post.permissions` returned by the server.
+  const getDisplayDepartments = useCallback((): string[] => {
+    // If local has explicit tokens (other than 'Alle'), use those
+    const nonAll = localDepartment.filter((v) => v !== ALL_TOKEN);
+    if (nonAll.length > 0) return sortDepartments(nonAll);
+
+    // Try to reconstruct from post.permissions (server may have returned expanded perms)
+    const perms = (post as any).permissions as string[] | undefined;
+    if (perms && perms.length > 0) {
+      const permsSet = new Set(perms);
+      if (permsSet.has(ALL_TOKEN)) return [ALL_TOKEN];
+
+      const picked: string[] = [];
+      if (permsSet.has(STUDENT_TOKEN)) picked.push(STUDENT_TOKEN);
+      if (permsSet.has(LECTURER_TOKEN)) picked.push(LECTURER_TOKEN);
+      areaValues.forEach((v) => {
+        if (permsSet.has(v)) picked.push(v);
+      });
+
+      if (picked.length > 0) return sortDepartments(picked);
+    }
+
+    // Fallback to whatever localDepartment contains (likely ['Alle'])
+    return sortDepartments(localDepartment);
+  }, [localDepartment, post]);
+
   // Datumsformatierung (DD.MM.YYYY)
   function formatDate(dateString: string): string {
     if (!dateString) return '';
@@ -537,13 +565,9 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
                       justifyContent: 'space-between',
                     }}
                   >
-                    {localDepartment.length > 0
-                      ? // map stored values to labels for display
-                        localDepartment
-                          .map((v) => {
-                            const found = departmentOptions.find((o) => o.value === v);
-                            return found ? found.label : v;
-                          })
+                    {getDisplayDepartments().length > 0
+                      ? getDisplayDepartments()
+                          .map((v) => valueToLabel(v))
                           .join(', ')
                       : 'Alle auswählen'}
                   </JoyButton>
@@ -620,7 +644,7 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
                 {formatDate(dateIso || new Date().toISOString())}
               </span>
               <span /* .department (keine eigenen Styles) */>
-                Fachbereich: {sortDepartments(localDepartment).map(valueToLabel).join(', ')}
+                Fachbereich: {getDisplayDepartments().map(valueToLabel).join(', ')}
               </span>
             </div>
           </>
