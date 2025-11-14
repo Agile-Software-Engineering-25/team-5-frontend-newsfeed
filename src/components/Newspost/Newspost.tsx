@@ -285,11 +285,20 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
   const handleSave = useCallback(() => {
     const payload = buildPayload();
     onSave?.({ post: payload });
-    // After saving, show the post and ensure the displayed department list
-    const sorted = sortDepartments(localDepartment);
-    setLocalDepartment(sorted);
-    setPostView('show');
-  }, [buildPayload, onSave, postView]);
+
+    if (postView === 'add') {
+      // reset inputs so admin can create another post without the component disappearing
+      setLocalTitle('');
+      setLocalContent({ format: 'html', body: '' });
+      setLocalDepartment(initialDepartments);
+      // stay in 'add' mode
+    } else {
+      // For edits, show the saved post in read-mode
+      const sorted = sortDepartments(localDepartment);
+      setLocalDepartment(sorted);
+      setPostView('show');
+    }
+  }, [buildPayload, onSave, postView, initialDepartments, localDepartment]);
 
   const handleEdit = useCallback(() => {
     const payload = buildPayload();
