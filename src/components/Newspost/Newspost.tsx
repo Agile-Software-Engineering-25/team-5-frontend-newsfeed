@@ -60,6 +60,17 @@ const departmentOptions = [
   { value: 'Area-2.Team-5.Read.NewsPost-Chemistry', label: 'Studenten Chemie' },
 ];
 
+const ALL_TOKEN = 'Alle';
+const STUDENT_TOKEN = 'student';
+const LECTURER_TOKEN = 'lecturer';
+// area-specific values that belong to the student-group
+const areaValues = [
+  'Area-2.Team-5.Read.NewsPost-Engineering',
+  'Area-2.Team-5.Read.NewsPost-ComputerScience',
+  'Area-2.Team-5.Read.NewsPost-Business',
+  'Area-2.Team-5.Read.NewsPost-Chemistry',
+];
+
 const NewsPostCard: React.FC<NewsPostCardProps> = ({
                                                      post,
                                                      postViewProp = 'show',
@@ -86,7 +97,7 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
     postViewProp
   );
   // Normalisiere initiales department prop: entweder 'Alle' oder gültige domain-roles (values)
-  const domainValues = departmentOptions.map((d) => d.value).filter((v) => v !== 'Alle');
+  const domainValues = departmentOptions.map((d) => d.value).filter((v) => v !== ALL_TOKEN);
   const initialDepartments = useMemo(() => {
     if (!department) return ['Alle'];
     const parts = department.split(',').map((s) => s.trim());
@@ -175,23 +186,65 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
   );
 
   const handleCheckboxChange = (optionValue: string) => {
-    // alle domain-values (ohne 'Alle')
-    const domains = domainValues;
-    if (optionValue === 'Alle') {
-      setLocalDepartment(['Alle']);
+    // Toggle logic with grouping:
+    // - ALL_TOKEN selects/deselects everything
+    // - STUDENT_TOKEN represents the group of areaValues; selecting it removes individual areas and vice-versa
+    const nextSet = new Set(localDepartment);
+
+    if (optionValue === ALL_TOKEN) {
+      if (nextSet.has(ALL_TOKEN)) {
+        nextSet.clear();
+      } else {
+        nextSet.clear();
+        // add ALL_TOKEN to represent 'all selected'
+        nextSet.add(ALL_TOKEN);
+      }
+    } else if (optionValue === STUDENT_TOKEN) {
+      // toggle student group
+      if (nextSet.has(STUDENT_TOKEN)) {
+        nextSet.delete(STUDENT_TOKEN);
+      } else {
+        // remove areaValues and add the STUDENT_TOKEN
+        areaValues.forEach((v) => nextSet.delete(v));
+        nextSet.delete(ALL_TOKEN);
+        nextSet.add(STUDENT_TOKEN);
+      }
+    } else if (optionValue === LECTURER_TOKEN) {
+      // simple toggle for lecturer
+      if (nextSet.has(LECTURER_TOKEN)) nextSet.delete(LECTURER_TOKEN);
+      else {
+        nextSet.delete(ALL_TOKEN);
+        nextSet.add(LECTURER_TOKEN);
+      }
     } else {
-      let next = localDepartment.includes(optionValue)
-        ? localDepartment.filter((d) => d !== optionValue)
-        : [...localDepartment.filter((d) => d !== 'Alle'), optionValue];
+      // option is an individual area
+      if (nextSet.has(optionValue)) nextSet.delete(optionValue);
+      else {
+        // selecting an individual area should remove the STUDENT_TOKEN (group)
+        nextSet.delete(STUDENT_TOKEN);
+        nextSet.delete(ALL_TOKEN);
+        nextSet.add(optionValue);
+      }
 
-      // Wenn alle Domains ausgewählt sind -> 'Alle'
-      if (domains.every((dm) => next.includes(dm))) next = ['Alle'];
-      if (next.length === 0) next = ['Alle'];
-
-      // Normalisiere: wenn 'Alle' gesetzt ist, speichere nur 'Alle', sonst nur die Domains
-      next = next[0] === 'Alle' ? ['Alle'] : domains.filter((dm) => next.includes(dm));
-      setLocalDepartment(next);
+      // If now all areaValues are selected individually, compress into STUDENT_TOKEN
+      const hasAllAreas = areaValues.every((v) => nextSet.has(v));
+      if (hasAllAreas) {
+        // remove individual areas
+        areaValues.forEach((v) => nextSet.delete(v));
+        nextSet.add(STUDENT_TOKEN);
+      }
     }
+
+    // If both students and lecturers are selected, treat as ALL
+    if (nextSet.has(STUDENT_TOKEN) && nextSet.has(LECTURER_TOKEN)) {
+      nextSet.clear();
+      nextSet.add(ALL_TOKEN);
+    }
+
+    // fallback: if nothing selected, use ALL_TOKEN for default
+    if (nextSet.size === 0) nextSet.add(ALL_TOKEN);
+
+    setLocalDepartment(Array.from(nextSet));
   };
 
   const buildPayload = useCallback((): NewsPostCreate | NewsPostUpdate => {
@@ -204,16 +257,14 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
       creation_date: post.creation_date ?? new Date().toISOString(),
       // Immer diese beiden Gruppen erlauben
       permissions: Array.from(
-        new Set(
-          [
-            'sau-admin',
-            'university-administrative-staff',
-            // falls 'Alle' ausgewählt ist, geben wir keine domain-spezifischen Rollen hinzu
-            ...(localDepartment[0] === 'Alle' ? [] : localDepartment),
-            // falls im post bereits permissions vorhanden sind (z.B. beim Edit), merge sie
-            ...((post as NewsPostCreate).permissions ?? []),
-          ].filter(Boolean)
-        )
+        new Set([
+          'sau-admin',
+          'university-administrative-staff',
+          // Wenn ALL_TOKEN ausgewählt ist, fügen wir alle domainValues hinzu
+          ...(localDepartment.includes(ALL_TOKEN) ? domainValues : localDepartment),
+          // falls im post bereits permissions vorhanden sind (z.B. beim Edit), merge sie
+          ...((post as NewsPostCreate).permissions ?? []),
+        ].filter(Boolean))
       ),
     };
   }, [post, localTitle, localContent.body, authorName]);

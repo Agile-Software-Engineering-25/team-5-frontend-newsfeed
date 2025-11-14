@@ -144,7 +144,7 @@ const Newsfeed: React.FC = () => {
           onSave={handleCreate}
           onCancel={() => undefined}
         />
-      )}
+    )}
       
       {/* Keine Frontend-Filterung/Pagination: genau das rendern, was vom Backend kommt */}
       {posts.map((p) => (

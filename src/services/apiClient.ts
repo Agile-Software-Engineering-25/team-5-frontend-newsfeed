@@ -38,7 +38,7 @@ const headers: Record<string, string> = {
     ...(opts.headers ?? {}),
     ...dynamicHeadersProvider(), // <--- neu
 };
-  console.log('Request Headers:', headers);
+  console.log('Request:', { method, url, headers, body: opts.body });
   const res = await fetch(url, {
     method,
     headers,
