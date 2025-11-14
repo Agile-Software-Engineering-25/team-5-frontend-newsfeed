@@ -290,7 +290,9 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
       // reset inputs so admin can create another post without the component disappearing
       setLocalTitle('');
       setLocalContent({ format: 'html', body: '' });
-      setLocalDepartment(initialDepartments);
+      // keep the current selection but normalize/sort it for consistent display
+      const sorted = sortDepartments(localDepartment);
+      setLocalDepartment(sorted);
       // stay in 'add' mode
     } else {
       // For edits, show the saved post in read-mode
