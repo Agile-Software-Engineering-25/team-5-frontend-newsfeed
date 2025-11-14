@@ -360,8 +360,9 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
 
     // If parent returned created entity, sync department from it
     const returned = (maybeResult as any) ?? undefined;
-    if (returned && returned.post) {
-      const entity = returned.post as any;
+    // support handlers that return either the entity directly or an object { post: entity }
+    const entity = returned ? (returned.post ?? returned) : undefined;
+    if (entity) {
       if (entity.department) {
         setLocalDepartment([entity.department]);
         setLastSavedDepartment(null);
@@ -396,8 +397,8 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
     const payload = buildPayload();
     const maybeResult = onSave ? await Promise.resolve(onSave({ post: payload })) : undefined;
     const returned = (maybeResult as any) ?? undefined;
-    if (returned && returned.post) {
-      const entity = returned.post as any;
+    const entity = returned ? (returned.post ?? returned) : undefined;
+    if (entity) {
       if (entity.department) {
         setLocalDepartment([entity.department]);
       } else if (entity.permissions) {
