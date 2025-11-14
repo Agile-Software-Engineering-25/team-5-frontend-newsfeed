@@ -92,6 +92,7 @@ const Newsfeed: React.FC = () => {
           (created as any).department = 'Alle';
         }
         setPosts((prev) => [created, ...prev]);
+        return created;
       } catch (e) {
         alert((e as Error).message);
       }
@@ -120,6 +121,7 @@ const Newsfeed: React.FC = () => {
         setPosts((prev) =>
           prev.map((p) => (p.id === updated.id ? updated : p))
         );
+        return updated;
       } catch (e) {
         alert((e as Error).message);
       }

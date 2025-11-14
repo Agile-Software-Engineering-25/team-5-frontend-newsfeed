@@ -354,21 +354,37 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
     };
   }, [post, localTitle, localContent.body, authorName]);
 
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async () => {
     const payload = buildPayload();
-    onSave?.({ post: payload });
+    const maybeResult = onSave ? await Promise.resolve(onSave({ post: payload })) : undefined;
+
+    // If parent returned created entity, sync department from it
+    const returned = (maybeResult as any) ?? undefined;
+    if (returned && returned.post) {
+      const entity = returned.post as any;
+      if (entity.department) {
+        setLocalDepartment([entity.department]);
+        setLastSavedDepartment(null);
+      } else if (entity.permissions) {
+        const perms: string[] = entity.permissions;
+        const picked: string[] = [];
+        if (perms.includes(STUDENT_TOKEN)) picked.push(STUDENT_TOKEN);
+        if (perms.includes(LECTURER_TOKEN)) picked.push(LECTURER_TOKEN);
+        areaValues.forEach((v) => {
+          if (perms.includes(v)) picked.push(v);
+        });
+        setLocalDepartment(picked.length === 0 ? [ALL_TOKEN] : sortDepartments(picked));
+        setLastSavedDepartment(null);
+      }
+    }
 
     if (postView === 'add') {
-      // reset inputs so admin can create another post without the component disappearing
       setLocalTitle('');
       setLocalContent({ format: 'html', body: '' });
-      // keep the current selection but normalize/sort it for consistent display
       const sorted = sortDepartments(localDepartment);
       setLocalDepartment(sorted);
       setLastSavedDepartment(sorted);
-      // stay in 'add' mode
     } else {
-      // For edits, show the saved post in read-mode
       const sorted = sortDepartments(localDepartment);
       setLocalDepartment(sorted);
       setLastSavedDepartment(sorted);
@@ -376,12 +392,27 @@ const NewsPostCard: React.FC<NewsPostCardProps> = ({
     }
   }, [buildPayload, onSave, postView, initialDepartments, localDepartment]);
 
-  const handleEdit = useCallback(() => {
+  const handleEdit = useCallback(async () => {
     const payload = buildPayload();
-    onSave?.({ post: payload });
+    const maybeResult = onSave ? await Promise.resolve(onSave({ post: payload })) : undefined;
+    const returned = (maybeResult as any) ?? undefined;
+    if (returned && returned.post) {
+      const entity = returned.post as any;
+      if (entity.department) {
+        setLocalDepartment([entity.department]);
+      } else if (entity.permissions) {
+        const perms: string[] = entity.permissions;
+        const picked: string[] = [];
+        if (perms.includes(STUDENT_TOKEN)) picked.push(STUDENT_TOKEN);
+        if (perms.includes(LECTURER_TOKEN)) picked.push(LECTURER_TOKEN);
+        areaValues.forEach((v) => {
+          if (perms.includes(v)) picked.push(v);
+        });
+        setLocalDepartment(picked.length === 0 ? [ALL_TOKEN] : sortDepartments(picked));
+      }
+    }
     const sorted = sortDepartments(localDepartment);
     setLocalDepartment(sorted);
-    setLastSavedDepartment(sorted);
     setPostView('show');
   }, [buildPayload, onSave]);
 
